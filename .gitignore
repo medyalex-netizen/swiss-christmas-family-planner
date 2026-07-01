@@ -7,3 +7,13 @@ out
 .env.test.local
 .env.production.local
 .DS_Store
+# Local helper files copied from previous project
+AGENTS.md
+CLAUDE.md
+USER-TESTING-CHECKLIST.md
+Roma/
+senior-trip-planner-backup-*/
+*.docx
+
+# Local backup files
+*.backup.tsx
