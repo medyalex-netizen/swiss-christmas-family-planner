@@ -1,189 +1,240 @@
 ﻿"use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+const STORAGE_KEY = "swissChristmasAnswers";
 
 type Answers = {
   tripLength: string;
   travelStyle: string;
   scenicInterest: string;
-  scenicOptions: string;
+  scenicOption: string;
   baseArea: string;
-  teenPriority: string;
+  teenPriorities?: string[];
+  teenPriority?: string;
 };
 
-const answerLabels: Array<{
-  id: keyof Answers;
-  title: string;
-}> = [
-  { id: "tripLength", title: "Trip length / אורך הטיול" },
-  { id: "travelStyle", title: "Travel style / סגנון הטיול" },
-  { id: "scenicInterest", title: "Scenic train interest / עניין ברכבות נופיות" },
-  { id: "scenicOptions", title: "Scenic train option / אפשרות רכבת נופית" },
-  { id: "baseArea", title: "Preferred base area / אזור לינה מועדף" },
-  { id: "teenPriority", title: "Teen-friendly priority / עדיפות לנערה בת 13" },
-];
+const defaultAnswers: Answers = {
+  tripLength: "",
+  travelStyle: "",
+  scenicInterest: "",
+  scenicOption: "",
+  baseArea: "",
+  teenPriorities: [],
+  teenPriority: "",
+};
 
-const checklist = [
-  "Ask questions before suggesting a full itinerary. / לשאול שאלות לפני שמציעים מסלול מלא.",
-  "Use the saved family answers when building the route. / להשתמש בתשובות המשפחתיות שנשמרו בעת בניית המסלול.",
-  "Keep Mont-Blanc Express recommended, but optional. / להשאיר את Mont-Blanc Express כהמלצה, אבל לא כחובה.",
-  "Do not force mountain trips into short itineraries. / לא להכניס טיולי הרים בכוח למסלולים קצרים.",
-  "Check real dates, train schedules, weather and tickets before final booking. / לבדוק תאריכים אמיתיים, לוחות רכבת, מזג אוויר וכרטיסים לפני הזמנה סופית.",
+const plannerRules = [
+  "לשאול שאלות לפני בניית מסלול סופי.",
+  "להשתמש בתשובות המשפחתיות שנשמרו בעמוד השאלות.",
+  "לא להעמיס יותר מדי על כל יום.",
+  "לשלב זמן קניות, אוכל, קפה ושיטוט רגוע.",
+  "לתת מקום גם למה שמעניין נערה בת 13.",
+  "להשאיר את Mont-Blanc Express כאפשרות מומלצת, אבל לא חובה.",
+  "לא לשלב ימי הרים או רכבות נופיות אם הטיול קצר מדי.",
+  "לבדוק תאריכים, שעות פתיחה, רכבות, מזג אוויר ועלויות לפני הזמנה.",
 ];
 
 export default function PromptPage() {
-  const [answers, setAnswers] = useState<Answers | null>(null);
+  const [answers, setAnswers] = useState<Answers>(defaultAnswers);
 
   useEffect(() => {
-    const savedAnswers = localStorage.getItem("swissChristmasAnswers");
+    const stored = window.localStorage.getItem(STORAGE_KEY);
 
-    if (savedAnswers) {
-      try {
-        setAnswers(JSON.parse(savedAnswers));
-      } catch {
-        setAnswers(null);
-      }
+    if (!stored) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(stored);
+
+      setAnswers({
+        ...defaultAnswers,
+        ...parsed,
+        teenPriorities: Array.isArray(parsed.teenPriorities)
+          ? parsed.teenPriorities
+          : parsed.teenPriority
+            ? [parsed.teenPriority]
+            : [],
+      });
+    } catch {
+      setAnswers(defaultAnswers);
     }
   }, []);
 
-  function answerText(id: keyof Answers) {
-    return answers?.[id] || "Not answered yet";
-  }
+  const teenText =
+    answers.teenPriorities && answers.teenPriorities.length > 0
+      ? answers.teenPriorities.join(", ")
+      : answers.teenPriority || "Not selected yet";
 
-  const generatedPrompt = `Create a realistic Switzerland Christmas family itinerary.
+  const promptText = useMemo(() => {
+    return `Create a realistic Switzerland Christmas family itinerary.
 
 Family profile:
 - Two parents
 - One 13-year-old daughter
-- Up to 10 days in Switzerland
+- Trip length: up to 10 days
 
 Saved family answers:
-- Trip length: ${answerText("tripLength")}
-- Travel style: ${answerText("travelStyle")}
-- Scenic train interest: ${answerText("scenicInterest")}
-- Scenic train option: ${answerText("scenicOptions")}
-- Preferred base area: ${answerText("baseArea")}
-- Teen-friendly priority: ${answerText("teenPriority")}
+- Trip length: ${answers.tripLength || "Not selected yet"}
+- Travel style: ${answers.travelStyle || "Not selected yet"}
+- Scenic train interest: ${answers.scenicInterest || "Not selected yet"}
+- Scenic train option: ${answers.scenicOption || "Not selected yet"}
+- Preferred base area: ${answers.baseArea || "Not selected yet"}
+- Teen-friendly priorities: ${teenText}
 
 Main goals:
 - Christmas markets
 - Shopping
 - Family-friendly attractions
 - Winter atmosphere
-- Scenic train trips only when they truly fit the itinerary
+- Beautiful places for photos
+- Chocolate, cafés and relaxed city time
+- Scenic train trips only when they truly fit the route
 
-Rules:
+Important planning rules:
 - Do not overload the days.
 - Keep walking reasonable.
-- Include shopping time and relaxed city time.
-- Include good photo spots.
-- Include chocolate, Christmas lights, winter views and teen-friendly experiences.
+- Include enough free time.
+- Do not force mountain days into a short trip.
 - Mont-Blanc Express is recommended, but optional.
-- Add Mont-Blanc Express only if the trip is long enough, usually 8-10 days.
-- Mont-Blanc Express is best from Montreux, Lausanne, Geneva or Martigny area.
-- Mont-Blanc Express should be treated as a full day trip, not a quick stop.
-- Mont-Blanc Express crosses into France, so passports and entry documents must be checked.
-- GoldenPass Express may fit when connecting Lake Geneva, Gstaad, Interlaken or the Bernese Oberland.
-- Jungfraujoch / Grindelwald should depend on weather, cost, visibility and trip length.
+- Mont-Blanc Express is most relevant if the trip includes Lake Geneva, Lausanne, Montreux, Geneva or Martigny.
+- GoldenPass Express may fit when connecting Lake Geneva with Interlaken or the Bernese Oberland.
+- Jungfraujoch / Grindelwald should depend on weather, visibility, cost and family energy.
+- Before final booking, check official current sources for Christmas market dates, train schedules, weather, ticket prices, opening hours and passport or border requirements.
 
-Before final booking:
-Check current Christmas market dates, train schedules, opening hours, weather, ticket prices and passport / border requirements using reliable official sources.`;
+Please first ask any missing clarification questions.
+Only after that, suggest a realistic day-by-day itinerary.`;
+  }, [answers, teenText]);
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <section className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-10">
-        <div className="rounded-3xl border border-white/10 bg-white/10 p-7 shadow-2xl">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-cyan-200">
-            AI planning prompt / הנחיית תכנון ל־AI
-          </p>
+    <main dir="rtl" className="min-h-screen bg-slate-950 px-6 py-10 text-white">
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-8 flex flex-wrap gap-4">
+          <Link href="/" className="text-sm text-amber-300 hover:text-amber-200">
+            חזרה לדף הבית
+          </Link>
 
-          <h1 className="text-4xl font-bold leading-tight md:text-5xl">
-            Swiss Christmas Planner Prompt / הנחיה למתכנן טיול חג מולד בשווייץ
-          </h1>
-
-          <p className="mt-5 max-w-3xl leading-8 text-slate-200">
-            This page now reads the saved family answers and creates a more
-            personal AI planning prompt.
-          </p>
-
-          <p className="mt-4 max-w-3xl leading-8 text-slate-300" dir="rtl">
-            העמוד הזה כבר קורא את התשובות שנשמרו ומכין הנחיה אישית יותר ל-AI.
-          </p>
-        </div>
-
-        <section className="rounded-3xl border border-emerald-300/30 bg-emerald-300/10 p-7">
-          <h2 className="text-2xl font-bold text-emerald-100">
-            Your saved family answers / התשובות המשפחתיות שנשמרו
-          </h2>
-
-          <div className="mt-5 grid gap-3 text-slate-200">
-            {answerLabels.map((answer) => (
-              <p key={answer.id}>
-                <span className="font-semibold text-emerald-100">
-                  {answer.title}:
-                </span>{" "}
-                {answerText(answer.id)}
-              </p>
-            ))}
-          </div>
-
-          <p className="mt-5 leading-7 text-slate-300" dir="rtl">
-            אם התשובות מופיעות כאן נכון, גם עמוד ההנחיה מחובר לתשובות שנשמרו.
-          </p>
-        </section>
-
-        <section className="rounded-3xl border border-cyan-300/30 bg-cyan-300/10 p-7">
-          <h2 className="text-2xl font-bold text-cyan-100">
-            Generated AI prompt / הנחיית AI שנוצרה
-          </h2>
-
-          <pre className="mt-5 whitespace-pre-wrap rounded-2xl border border-white/10 bg-slate-950/80 p-5 text-sm leading-7 text-slate-200">
-            {generatedPrompt}
-          </pre>
-        </section>
-
-        <section className="rounded-3xl border border-amber-300/30 bg-amber-300/10 p-7">
-          <h2 className="text-2xl font-bold text-amber-100">
-            Planner behavior checklist / כללי התנהגות למתכנן
-          </h2>
-
-          <ul className="mt-5 space-y-3 text-slate-200">
-            {checklist.map((item) => (
-              <li key={item} className="flex gap-3">
-                <span className="text-amber-300">&#10003;</span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <div className="flex flex-wrap gap-4">
           <Link
             href="/search"
-            className="rounded-full bg-cyan-300 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-200"
+            className="text-sm text-amber-300 hover:text-amber-200"
           >
-                        Back to questions / חזרה לשאלות
+            שינוי תשובות
           </Link>
 
           <Link
             href="/results"
-            className="rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition hover:bg-white/10"
+            className="text-sm text-amber-300 hover:text-amber-200"
           >
-                        View ideas / צפייה ברעיונות
-          </Link>
-
-          <Link
-            href="/"
-            className="rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition hover:bg-white/10"
-          >
-                        Back home / חזרה לדף הבית
+            חזרה להצעת הכיוון
           </Link>
         </div>
-      </section>
+
+        <section className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl">
+          <p dir="ltr" className="text-right text-sm font-semibold text-amber-300">
+            Swiss Christmas Family Planner
+          </p>
+
+          <h1 className="mt-4 text-4xl font-bold">
+            הנחיה למתכנן טיול חג מולד בשווייץ
+          </h1>
+
+          <p className="mt-5 max-w-3xl leading-8 text-slate-300">
+            העמוד הזה מכין הנחיה מסודרת לפי התשובות שנשמרו. אפשר להשתמש בה כדי
+            לקבל מסלול מפורט יותר, ולאחר מכן להמשיך למסלול לדוגמה בתוך האפליקציה.
+          </p>
+        </section>
+
+        <section className="mt-8 rounded-3xl border border-white/10 bg-slate-900/80 p-6">
+          <h2 className="text-2xl font-bold">התשובות המשפחתיות שנשמרו</h2>
+
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <AnswerCard label="אורך הטיול" value={answers.tripLength} />
+            <AnswerCard label="סגנון הטיול" value={answers.travelStyle} />
+            <AnswerCard
+              label="עניין ברכבות נופיות"
+              value={answers.scenicInterest}
+            />
+            <AnswerCard
+              label="רכבת נופית שמעניינת אתכם"
+              value={answers.scenicOption}
+            />
+            <AnswerCard label="אזור לינה מועדף" value={answers.baseArea} />
+            <AnswerCard label="מה חשוב לנערה בת 13" value={teenText} />
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6">
+          <h2 className="text-2xl font-bold">הנחיה שנוצרה למתכנן</h2>
+
+          <p className="mt-3 leading-7 text-slate-300">
+            ההנחיה עצמה נשארת באנגלית כדי שיהיה קל להדביק אותה בכל כלי תכנון או
+            צ׳אט אחר. מסביב לה — העמוד עצמו נשאר בעברית מסודרת.
+          </p>
+
+          <pre
+            dir="ltr"
+            className="mt-5 whitespace-pre-wrap rounded-3xl border border-white/10 bg-slate-950 p-5 text-left text-sm leading-7 text-slate-100"
+          >
+            {promptText}
+          </pre>
+        </section>
+
+        <section className="mt-8 rounded-3xl border border-white/10 bg-slate-900/80 p-6">
+          <h2 className="text-2xl font-bold">כללי התנהגות למתכנן</h2>
+
+          <div className="mt-5 space-y-3">
+            {plannerRules.map((rule) => (
+              <p key={rule} className="leading-7 text-slate-300">
+                ✓ {rule}
+              </p>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-3xl border border-amber-300/30 bg-amber-300/10 p-6">
+          <h2 className="text-2xl font-bold text-amber-200">המשך</h2>
+
+          <p className="mt-3 leading-8 text-slate-200">
+            מכאן אפשר להמשיך למסלול לדוגמה, או לחזור אחורה ולשנות את התשובות.
+          </p>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/itinerary"
+              className="rounded-full bg-amber-300 px-6 py-3 text-center font-bold text-slate-950 hover:bg-amber-200"
+            >
+              המשך למסלול לדוגמה
+            </Link>
+
+            <Link
+              href="/results"
+              className="rounded-full border border-white/20 px-6 py-3 text-center font-semibold text-slate-100 hover:border-amber-300"
+            >
+              חזרה להצעת הכיוון
+            </Link>
+
+            <Link
+              href="/search"
+              className="rounded-full border border-white/20 px-6 py-3 text-center font-semibold text-slate-100 hover:border-amber-300"
+            >
+              שינוי תשובות
+            </Link>
+          </div>
+        </section>
+      </div>
     </main>
   );
 }
 
-
-
+function AnswerCard({ label, value }: { label: string; value?: string }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+      <p className="text-sm font-semibold text-amber-300">{label}</p>
+      <p className="mt-2 leading-7 text-slate-100">
+        {value && value.length > 0 ? value : "עדיין לא נבחר"}
+      </p>
+    </div>
+  );
+}

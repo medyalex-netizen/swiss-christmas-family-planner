@@ -3,272 +3,307 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+const STORAGE_KEY = "swissChristmasAnswers";
+
 type Answers = {
   tripLength: string;
   travelStyle: string;
   scenicInterest: string;
-  scenicOptions: string;
+  scenicOption: string;
   baseArea: string;
+  teenPriorities: string[];
   teenPriority: string;
 };
 
-const initialAnswers: Answers = {
+const defaultAnswers: Answers = {
   tripLength: "",
   travelStyle: "",
   scenicInterest: "",
-  scenicOptions: "",
+  scenicOption: "",
   baseArea: "",
+  teenPriorities: [],
   teenPriority: "",
 };
 
-const questions: Array<{
-  id: keyof Answers;
-  title: string;
-  hebrewTitle: string;
-  options: string[];
-}> = [
+const questions = [
   {
-    id: "tripLength",
-    title: "Trip length",
-    hebrewTitle: "אורך הטיול",
+    key: "tripLength",
+    title: "כמה ימים מתוכנן הטיול?",
+    helper: "זה משפיע על השאלה האם כדאי לשלב רכבות נופיות וימי הרים.",
     options: [
-      "5–6 days — focused and efficient / 5–6 ימים — טיול ממוקד ויעיל",
-      "7–8 days — balanced family trip / 7–8 ימים — טיול משפחתי מאוזן",
-      "9–10 days — enough time for scenic trains / 9–10 ימים — מספיק זמן לרכבות נופיות",
-      "Not sure yet / עדיין לא בטוחים",
+      "5-6 ימים — טיול קצר וממוקד",
+      "7-8 ימים — טיול מאוזן",
+      "9-10 ימים — מספיק זמן גם לרכבות נופיות",
     ],
   },
   {
-    id: "travelStyle",
-    title: "Main travel style",
-    hebrewTitle: "סגנון הטיול",
+    key: "travelStyle",
+    title: "מה סגנון הטיול הרצוי?",
+    helper: "בחרו את הסגנון שהכי מתאים למשפחה.",
     options: [
-      "Christmas markets first / קודם כל שווקי חג מולד",
-      "Shopping and city atmosphere / קניות ואווירה עירונית",
-      "Attractions and family experiences / אטרקציות וחוויות משפחתיות",
-      "A balanced mix of everything / שילוב מאוזן של הכול",
+      "שווקי חג מולד ואווירה חורפית",
+      "קניות, רחובות יפים וזמן עירוני",
+      "נופים, רכבות והרים",
+      "שילוב מאוזן של הכול",
     ],
   },
   {
-    id: "scenicInterest",
-    title: "Scenic train trips",
-    hebrewTitle: "טיולי רכבת נופיים",
+    key: "scenicInterest",
+    title: "האם חשוב לשלב רכבות נופיות?",
+    helper: "רכבות נופיות יכולות להיות חוויה נהדרת, אבל הן לא חייבות להיכנס לכל מסלול.",
     options: [
-      "Yes, very interested / כן, מאוד מעוניינים",
-      "Maybe, only if it fits the itinerary / אולי, רק אם זה מתאים למסלול",
-      "No, we prefer cities, markets and shopping / לא, אנחנו מעדיפים ערים, שווקים וקניות",
+      "כן, מאוד חשוב",
+      "כן, אבל רק אם זה משתלב טבעית במסלול",
+      "לא חובה — עדיף להתמקד בערים, שווקים וקניות",
     ],
   },
   {
-    id: "scenicOptions",
-    title: "Possible scenic train options",
-    hebrewTitle: "אפשרויות רכבת",
+    key: "scenicOption",
+    title: "איזו רכבת נופית מעניינת אתכם במיוחד?",
+    helper: "הבחירה כאן עוזרת להבין לאיזה אזור כדאי לכוון את המסלול.",
     options: [
-      "Mont-Blanc Express - recommended, but optional / Mont-Blanc Express — מומלץ, אבל לא חובה",
-      "GoldenPass Express / רכבת GoldenPass Express",
-      "Jungfraujoch / Grindelwald / יונגפראויוך / גרינדלוולד",
-      "Only if weather and schedule make sense / רק אם מזג האוויר ולוח הזמנים מתאימים",
+      "Mont-Blanc Express — מומלץ, אבל לא חובה",
+      "GoldenPass Express — מתאים לחיבור בין אזור אגם ז׳נבה לאזור אינטרלאקן",
+      "Jungfraujoch / Grindelwald — יום הרים משמעותי שתלוי במזג האוויר ובתקציב",
+      "עדיין לא יודעים",
     ],
   },
   {
-    id: "baseArea",
-    title: "Best area to sleep",
-    hebrewTitle: "אזור לינה מועדף",
+    key: "baseArea",
+    title: "איזה אזור לינה נשמע מתאים יותר?",
+    helper: "זה לא מחליף תכנון סופי, אבל עוזר לבנות כיוון למסלול.",
     options: [
-      "Zurich / Lucerne area / אזור ציריך / לוצרן",
-      "Basel / Bern area / אזור בזל / ברן",
-      "Lausanne / Montreux / Lake Geneva area — לוזאן / מונטרה / אגם ז׳נבה",
-      "Interlaken / Grindelwald area / אזור אינטרלאקן / גרינדלוולד",
-      "Let the app recommend / לתת לאפליקציה להמליץ",
+      "ציריך",
+      "באזל",
+      "לוצרן",
+      "לוזאן / מונטרה / אזור אגם ז׳נבה",
+      "אינטרלאקן / גרינדלוולד",
+      "עדיין פתוחים להצעות",
     ],
   },
-  {
-    id: "teenPriority",
-    title: "Teen-friendly priorities",
-    hebrewTitle: "התאמה לנערה בת 13",
-    options: [
-      "Shopping streets and cool city time / רחובות קניות וזמן עירוני כיפי",
-      "Snow and mountain views / שלג ונופי הרים",
-      "Chocolate, food and Christmas lights / שוקולד, אוכל ואורות חג מולד",
-      "Easy attractions, not too many museums / אטרקציות קלות, לא יותר מדי מוזיאונים",
-      "Good photo spots / מקומות יפים לתמונות",
-    ],
-  },
+] as const;
+
+const teenOptions = [
+  "קניות ורחובות יפים",
+  "שוקולד, קינוחים ובתי קפה",
+  "מקומות יפים לתמונות",
+  "אווירת חג מולד, אורות ושווקים",
+  "רכבות ונופים",
+  "שלג והרים",
+  "אטרקציות קלילות ולא מוזיאונים כבדים",
 ];
 
 export default function SearchPage() {
-  const [answers, setAnswers] = useState<Answers>(initialAnswers);
-  const [savedMessage, setSavedMessage] = useState("");
+  const [answers, setAnswers] = useState<Answers>(defaultAnswers);
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const savedAnswers = localStorage.getItem("swissChristmasAnswers");
+    const stored = window.localStorage.getItem(STORAGE_KEY);
 
-    if (savedAnswers) {
-      setAnswers(JSON.parse(savedAnswers));
+    if (stored) {
+      const parsed = JSON.parse(stored);
+
+      setAnswers({
+        ...defaultAnswers,
+        ...parsed,
+        teenPriorities: Array.isArray(parsed.teenPriorities)
+          ? parsed.teenPriorities
+          : parsed.teenPriority
+            ? [parsed.teenPriority]
+            : [],
+      });
     }
   }, []);
 
-  function updateAnswer(questionId: keyof Answers, value: string) {
-    const nextAnswers = {
-      ...answers,
-      [questionId]: value,
-    };
+  useEffect(() => {
+    const teenPriority = answers.teenPriorities.join(", ");
 
-    setAnswers(nextAnswers);
-    localStorage.setItem("swissChristmasAnswers", JSON.stringify(nextAnswers));
-    setSavedMessage("Saved / נשמר");
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ ...answers, teenPriority })
+    );
+  }, [answers]);
+
+  function selectAnswer(key: keyof Answers, value: string) {
+    setAnswers((current) => ({
+      ...current,
+      [key]: value,
+    }));
+
+    setSaved(true);
+  }
+
+  function toggleTeenPriority(value: string) {
+    setAnswers((current) => {
+      const exists = current.teenPriorities.includes(value);
+
+      const nextTeenPriorities = exists
+        ? current.teenPriorities.filter((item) => item !== value)
+        : [...current.teenPriorities, value];
+
+      return {
+        ...current,
+        teenPriorities: nextTeenPriorities,
+        teenPriority: nextTeenPriorities.join(", "),
+      };
+    });
+
+    setSaved(true);
   }
 
   function clearAnswers() {
-    setAnswers(initialAnswers);
-    localStorage.removeItem("swissChristmasAnswers");
-    setSavedMessage("Answers cleared / התשובות נמחקו");
+    setAnswers(defaultAnswers);
+    window.localStorage.removeItem(STORAGE_KEY);
+    setSaved(false);
   }
 
+  const hasEnoughAnswers = Boolean(
+    answers.tripLength &&
+      answers.travelStyle &&
+      answers.scenicInterest &&
+      answers.baseArea &&
+      answers.teenPriorities.length > 0
+  );
+
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <section className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-10">
-        <div className="rounded-3xl border border-white/10 bg-white/10 p-7 shadow-2xl">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-[0.25em] text-cyan-200">
-            Family trip questions
+    <main dir="rtl" className="min-h-screen bg-slate-950 px-6 py-10 text-white">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-8">
+          <Link href="/" className="text-sm text-amber-300 hover:text-amber-200">
+            חזרה לדף הבית
+          </Link>
+        </div>
+
+        <section className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl">
+          <p dir="ltr" className="text-right text-sm font-semibold text-amber-300">
+            Swiss Christmas Family Planner
           </p>
 
-          <h1 className="text-4xl font-bold leading-tight md:text-5xl">
-            Swiss Christmas Family Planner Questions / שאלות לתכנון טיול משפחתי בשווייץ בחג המולד
+          <h1 className="mt-4 text-4xl font-bold">
+            שאלות לתכנון טיול משפחתי בשווייץ בחג המולד
           </h1>
 
-          <p className="mt-5 max-w-3xl leading-8 text-slate-200">
-            Choose the answers that best describe the family trip. The app now
-            saves your choices in the browser, so later we can use them to build
-            a personal itinerary.
+          <p className="mt-5 max-w-3xl leading-8 text-slate-300">
+            ענו על השאלות כדי שהאפליקציה תבין את אופי הטיול. לאחר מכן אפשר
+            להמשיך להצעת מסלול ראשונית.
           </p>
-
-          <p className="mt-4 max-w-3xl leading-8 text-slate-300" dir="rtl">
-            בחרו את התשובות שמתאימות לטיול המשפחתי. עכשיו האפליקציה כבר שומרת
-            את הבחירות בדפדפן, ובהמשך נשתמש בהן כדי לבנות מסלול אישי.
-          </p>
-
-          {savedMessage && (
-            <p className="mt-5 inline-flex rounded-full bg-emerald-300 px-4 py-2 text-sm font-semibold text-slate-950">
-              {savedMessage}
-            </p>
-          )}
-        </div>
-
-        <section className="grid gap-6">
-          {questions.map((question) => (
-            <article
-              key={question.id}
-              className="rounded-3xl border border-white/10 bg-white/[0.07] p-6"
-            >
-              <h2 className="text-2xl font-bold text-cyan-100">
-                {question.title}
-              </h2>
-
-              <p className="mt-2 text-slate-300" dir="rtl">
-                {question.hebrewTitle}
-              </p>
-
-              <div className="mt-5 grid gap-3">
-                {question.options.map((option, optionIndex) => {
-                  const optionId = `${question.id}-${optionIndex}`;
-
-                  return (
-                    <label
-                      key={option}
-                      htmlFor={optionId}
-                      className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-slate-900/70 p-4 transition hover:bg-slate-800"
-                    >
-                      <input
-                        id={optionId}
-                        type="radio"
-                        name={question.id}
-                        value={option}
-                        checked={answers[question.id] === option}
-                        onChange={() => updateAnswer(question.id, option)}
-                        className="mt-1"
-                      />
-
-                      <span className="leading-7 text-slate-200">{option}</span>
-                    </label>
-                  );
-                })}
-              </div>
-            </article>
-          ))}
         </section>
 
-        <section className="rounded-3xl border border-amber-300/30 bg-amber-300/10 p-7">
-          <h2 className="text-2xl font-bold text-amber-100">
-            Saved family answers / תשובות משפחתיות שנשמרו
-          </h2>
+        <section className="mt-8 space-y-6">
+          {questions.map((question) => {
+            const selected = answers[question.key as keyof Answers] as string;
 
-          <div className="mt-5 grid gap-3 text-slate-200">
-            {questions.map((question) => (
-              <p key={question.id}>
-                <span className="font-semibold text-amber-100">
-                  {question.title} / {question.hebrewTitle}:
-                </span>{" "}
-                {answers[question.id] || "Not answered yet"}
+            return (
+              <div
+                key={question.key}
+                className="rounded-3xl border border-white/10 bg-slate-900/80 p-6"
+              >
+                <h2 className="text-2xl font-bold">{question.title}</h2>
+                <p className="mt-2 leading-7 text-slate-300">
+                  {question.helper}
+                </p>
+
+                <div className="mt-5 grid gap-3 md:grid-cols-2">
+                  {question.options.map((option) => {
+                    const isSelected = selected === option;
+
+                    return (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() =>
+                          selectAnswer(question.key as keyof Answers, option)
+                        }
+                        className={`rounded-2xl border p-4 text-right leading-7 transition ${
+                          isSelected
+                            ? "border-amber-300 bg-amber-300 text-slate-950"
+                            : "border-white/10 bg-white/5 text-slate-100 hover:border-amber-300/70"
+                        }`}
+                      >
+                        {option}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+
+          <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-6">
+            <h2 className="text-2xl font-bold">
+              מה חשוב במיוחד לנערה בת 13?
+            </h2>
+
+            <p className="mt-2 leading-7 text-slate-300">
+              כאן אפשר לבחור יותר מאפשרות אחת.
+            </p>
+
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
+              {teenOptions.map((option) => {
+                const isSelected = answers.teenPriorities.includes(option);
+
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => toggleTeenPriority(option)}
+                    className={`rounded-2xl border p-4 text-right leading-7 transition ${
+                      isSelected
+                        ? "border-amber-300 bg-amber-300 text-slate-950"
+                        : "border-white/10 bg-white/5 text-slate-100 hover:border-amber-300/70"
+                    }`}
+                  >
+                    {isSelected ? "✓ " : ""}
+                    {option}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-2xl font-bold">התשובות נשמרות בדפדפן</h2>
+
+              <p className="mt-2 text-slate-300">
+                {saved
+                  ? "התשובות נשמרו. אפשר להמשיך להצעת מסלול."
+                  : "בחרו תשובות ואז המשיכו להצעת מסלול."}
               </p>
-            ))}
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={clearAnswers}
+                className="rounded-full border border-white/20 px-6 py-3 font-semibold text-slate-100 hover:border-amber-300"
+              >
+                מחיקת תשובות
+              </button>
+
+              <Link
+                href="/results"
+                className={`rounded-full px-6 py-3 text-center font-bold ${
+                  hasEnoughAnswers
+                    ? "bg-amber-300 text-slate-950 hover:bg-amber-200"
+                    : "bg-slate-700 text-slate-300"
+                }`}
+              >
+                המשך להצעת מסלול
+              </Link>
+            </div>
           </div>
 
-          <button
-            type="button"
-            onClick={clearAnswers}
-            className="mt-6 rounded-full border border-white/20 px-5 py-3 font-semibold text-white transition hover:bg-white/10"
-          >
-            Clear answers / מחיקת תשובות
-          </button>
+          {!hasEnoughAnswers && (
+            <p className="mt-4 leading-7 text-amber-200">
+              מומלץ לענות לפחות על אורך הטיול, סגנון הטיול, רכבות נופיות,
+              אזור לינה, ומה חשוב לנערה בת 13.
+            </p>
+          )}
         </section>
-
-        <section className="rounded-3xl border border-cyan-300/30 bg-cyan-300/10 p-7">
-          <h2 className="text-2xl font-bold text-cyan-100">
-            Important planning notes / הערות תכנון חשובות
-          </h2>
-
-          <ul className="mt-5 space-y-3 leading-7 text-slate-200">
-            <li>Mont-Blanc Express is recommended, but optional. / Mont-Blanc Express מומלץ, אבל לא חובה.</li>
-            <li>It is usually best for 8–10 day itineraries. / בדרך כלל מתאים יותר למסלול של 8–10 ימים.</li>
-            <li>
-              If the trip is short, cities, markets and shopping may be more important. / אם הטיול קצר, ערים, שווקים וקניות יכולים להיות חשובים יותר.
-            </li>
-            <li>
-              Mont-Blanc Express crosses into France, so passports and entry documents must be checked. / Mont-Blanc Express עובר לצרפת, לכן חייבים לבדוק דרכונים ומסמכי כניסה.
-            </li>
-            <li>
-              Final planning must be checked later against real dates, train schedules, market openings and weather. / את התכנון הסופי חייבים לבדוק בהמשך מול תאריכים אמיתיים, לוחות רכבת, פתיחת שווקים ומזג אוויר.
-            </li>
-          </ul>
-        </section>
-
-        <div className="flex flex-wrap gap-4">
-          <Link
-            href="/results"
-            className="rounded-full bg-cyan-300 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-200"
-          >
-            Continue to ideas / המשך לרעיונות
-          </Link>
-
-          <Link
-            href="/prompt"
-            className="rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition hover:bg-white/10"
-          >
-            View AI prompt / צפייה בהנחיית AI
-          </Link>
-
-          <Link
-            href="/"
-            className="rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition hover:bg-white/10"
-          >
-            Back home / חזרה לדף הבית
-          </Link>
-        </div>
-      </section>
+      </div>
     </main>
   );
 }
-
-
-
