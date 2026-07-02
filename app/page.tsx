@@ -1,124 +1,184 @@
 ﻿import Link from "next/link";
 
-const features = [
+const highlights = [
   {
-    title: "Christmas markets / שווקי חג מולד",
-    text: "Find the best Swiss Christmas markets for a family trip: Zurich, Basel, Lucerne, Montreux, Bern and more. / מציאת שווקי חג המולד המתאימים ביותר לטיול משפחתי: ציריך, בזל, לוצרן, מונטרה, ברן ועוד.",
+    title: "שווקי חג מולד",
+    text: "רעיונות לערים עם אווירת חג מולד, אורות, דוכנים, אוכל חורפי ושיטוט נעים בערב.",
   },
   {
-    title: "Shopping / קניות",
-    text: "Plan shopping time without turning the whole trip into a shopping trip: city centers, malls, chocolate, souvenirs and gifts. / תכנון זמן קניות בלי להפוך את כל הטיול לטיול קניות: מרכזי ערים, קניונים, שוקולד, מזכרות ומתנות.",
+    title: "קניות וזמן עירוני",
+    text: "שילוב של רחובות יפים, חנויות, בתי קפה, שוקולד וזמן חופשי שמתאים גם למשפחה וגם לנערה בת 13.",
   },
   {
-    title: "Family attractions / אטרקציות למשפחה",
-    text: "Attractions suitable for two parents and a 13-year-old daughter: winter views, old towns, museums, viewpoints and easy day trips. / אטרקציות שמתאימות לזוג הורים ולילדה בת 13: נופי חורף, ערים עתיקות, מוזיאונים, נקודות תצפית וטיולי יום קלים.",
+    title: "אטרקציות למשפחה",
+    text: "בחירה באטרקציות קלילות, יפות ולא עמוסות מדי, עם מספיק זמן מנוחה בין יום ליום.",
   },
   {
-    title: "Scenic train trips / טיולי רכבת נופיים",
-    text: "Add scenic trains such as Mont-Blanc Express, GoldenPass Express and Jungfraujoch / Grindelwald when they fit the trip length. / הוספת רכבות נופיות כמו Mont-Blanc Express, GoldenPass Express ו־Jungfraujoch / Grindelwald כאשר הן מתאימות לאורך הטיול.",
+    title: "רכבות נופיות",
+    text: "בדיקה זהירה של רכבות כמו Mont-Blanc Express או GoldenPass Express רק אם הן באמת מתאימות למסלול.",
   },
 ];
 
-const highlights = [
-  "Built for a family: two parents + 13-year-old daughter / מיועד למשפחה: זוג הורים וילדה בת 13",
-  "Best for up to 10 days in Switzerland / מתאים לטיול של עד 10 ימים בשוויץ",
-  "Combines Christmas markets, shopping, attractions and scenic trains / משלב שווקי חג מולד, קניות, אטרקציות ורכבות נופיות",
-  "Mont-Blanc Express is recommended, but optional / Mont-Blanc Express מומלץ, אבל לא חובה",
-  "The app will ask questions before suggesting an itinerary / האפליקציה תשאל שאלות לפני שהיא מציעה מסלול",
+const routeIdeas = [
+  {
+    title: "אזור אגם ז׳נבה",
+    text: "לוזאן, מונטרה וז׳נבה יכולות להתאים לחלק מערבי יפה של הטיול, עם אגם, שווקים ואפשרות לרכבת נופית.",
+  },
+  {
+    title: "אזור אינטרלאקן / גרינדלוולד",
+    text: "מתאים ליום הרים ושלג, אבל רק אם מזג האוויר, הראות, התקציב והעייפות המשפחתית מאפשרים זאת.",
+  },
+  {
+    title: "ציריך, באזל ולוצרן",
+    text: "שלוש ערים חזקות לפתיחה או סיום של הטיול, עם שווקי חג מולד, קניות, עיר עתיקה ונגישות טובה ברכבת.",
+  },
+];
+
+const principles = [
+  "לא להעמיס יותר מדי על כל יום.",
+  "לשלב זמן חופשי לקניות, קפה, אוכל ושיטוט רגוע.",
+  "לתת מקום למה שמעניין נערה בת 13.",
+  "לבדוק תאריכים, רכבות, מזג אוויר ומחירים לפני הזמנה.",
+  "להשאיר גמישות לשינוי מסלול במקרה של גשם, שלג או עייפות.",
 ];
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <section className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-12">
-        <div className="rounded-3xl border border-white/10 bg-white/10 p-8 shadow-2xl">
-          <p className="mb-4 text-sm font-semibold uppercase tracking-[0.3em] text-cyan-200">
-            Switzerland • Christmas • Family Planner / שוויץ • חג מולד • תכנון משפחתי
+    <main dir="rtl" className="min-h-screen bg-slate-950 px-6 py-10 text-white">
+      <div className="mx-auto max-w-6xl">
+        <section className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl">
+          <p dir="ltr" className="text-right text-sm font-semibold text-amber-300">
+            Swiss Christmas Family Planner
           </p>
 
-          <h1 className="max-w-4xl text-4xl font-bold leading-tight md:text-6xl">
-            Swiss Christmas Family Planner / מתכנן טיול משפחתי לשוויץ בחג המולד
+          <h1 className="mt-4 max-w-4xl text-4xl font-bold leading-tight md:text-6xl">
+            מתכנן טיול משפחתי לשווייץ בחג המולד
           </h1>
 
-          <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-200">
-            אפליקציה לתכנון טיול משפחתי לשוויץ בתקופת חג המולד — לזוג הורים
-            וילדה בת 13, עם שווקי חג מולד, קניות, אטרקציות, רכבות נופיות
-            וימים מאוזנים שמתאימים למשפחה.
+          <p className="mt-6 max-w-3xl leading-8 text-slate-300">
+            כלי תכנון ראשוני למשפחה עם שני הורים ונערה בת 13, לטיול של עד
+            עשרה ימים בשווייץ. המטרה היא לבנות כיוון הגיוני שמשלב שווקי חג
+            מולד, קניות, אטרקציות, נופים ורכבות נופיות — בלי להעמיס יותר מדי.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-4">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/search"
-              className="rounded-full bg-cyan-300 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-200"
+              className="rounded-full bg-amber-300 px-7 py-3 text-center font-bold text-slate-950 hover:bg-amber-200"
             >
-              Start planning / התחלת תכנון
+              התחלת תכנון
             </Link>
 
             <Link
               href="/results"
-              className="rounded-full border border-white/20 px-6 py-3 font-semibold text-white transition hover:bg-white/10"
+              className="rounded-full border border-white/20 px-7 py-3 text-center font-semibold text-slate-100 hover:border-amber-300"
             >
-              View ideas / צפייה ברעיונות
+              צפייה בהצעת כיוון
+            </Link>
+
+            <Link
+              href="/itinerary"
+              className="rounded-full border border-white/20 px-7 py-3 text-center font-semibold text-slate-100 hover:border-amber-300"
+            >
+              מסלול לדוגמה
             </Link>
           </div>
-        </div>
-
-        <section className="grid gap-5 md:grid-cols-2">
-          {features.map((feature) => (
-            <div
-              key={feature.title}
-              className="rounded-2xl border border-white/10 bg-white/[0.07] p-6"
-            >
-              <h2 className="text-xl font-bold text-cyan-100">
-                {feature.title}
-              </h2>
-              <p className="mt-3 leading-7 text-slate-300">{feature.text}</p>
-            </div>
-          ))}
         </section>
 
-        <section className="rounded-3xl border border-cyan-300/30 bg-cyan-300/10 p-7">
-          <h2 className="text-2xl font-bold text-cyan-100">
-            Mont-Blanc Express day trip / טיול יום ברכבת Mont-Blanc Express
-          </h2>
+        <section className="mt-10">
+          <h2 className="text-3xl font-bold">מה האפליקציה עוזרת לתכנן?</h2>
 
-          <p className="mt-4 leading-8 text-slate-200">
-            Recommended, but optional. Best if the trip is 8–10 days and the
-            family is staying around Lake Geneva, Montreux, Lausanne, Geneva or
-            Martigny. This should be treated as a full scenic train day trip,
-            not as a small stop on the way. / מומלץ, אבל לא חובה. מתאים במיוחד אם הטיול הוא 8-10 ימים והמשפחה ישנה באזור אגם ז׳נבה, מונטרה, לוזאן, ז׳נבה או מרטיני. יש להתייחס לזה כטיול יום מלא ברכבת נופית, ולא כעצירה קטנה בדרך.
-          </p>
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
+            {highlights.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-3xl border border-white/10 bg-slate-900/80 p-6"
+              >
+                <h3 className="text-2xl font-bold text-amber-200">
+                  {item.title}
+                </h3>
 
-          <div className="mt-5 grid gap-3 text-sm text-slate-200 md:grid-cols-2">
-            <p>
-              <strong>Type / סוג:</strong> scenic train + alpine town / רכבת נופית + עיירה אלפינית
-            </p>
-            <p>
-              <strong>Good for / מתאים ל:</strong> mountain views, Chamonix, family photos / נופי הרים, שאמוני ותמונות משפחתיות
-            </p>
-            <p>
-              <strong>Difficulty / רמת קושי:</strong> medium — long travel day / בינונית — יום נסיעה ארוך
-            </p>
-            <p>
-              <strong>Important / חשוב:</strong> crosses into France. For European passports and non-EU passports, check passport validity and current entry rules before booking. / עובר לצרפת. עבור דרכונים אירופיים וגם עבור דרכונים מחוץ לאיחוד האירופי, כדאי לבדוק את תוקף הדרכונים ואת כללי הכניסה העדכניים לפני הזמנה.
-              
-            </p>
+                <p className="mt-3 leading-8 text-slate-300">{item.text}</p>
+              </div>
+            ))}
           </div>
         </section>
 
-        <section className="rounded-3xl border border-white/10 bg-white/[0.06] p-7">
-          <h2 className="text-2xl font-bold">What the app will remember / מה האפליקציה תזכור</h2>
+        <section className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-6">
+          <h2 className="text-3xl font-bold">כיוון אפשרי למסלול</h2>
 
-          <ul className="mt-5 space-y-3 text-slate-200">
-            {highlights.map((item) => (
-              <li key={item} className="flex gap-3">
-                <span className="text-cyan-300">✓</span>
-                <span>{item}</span>
-              </li>
+          <p className="mt-3 max-w-3xl leading-8 text-slate-300">
+            המסלול לא חייב לכלול הכול. הרעיון הוא לבחור את האזורים שמתאימים
+            למשפחה, לאורך הטיול ולמזג האוויר בפועל.
+          </p>
+
+          <div className="mt-6 grid gap-5 md:grid-cols-3">
+            {routeIdeas.map((item) => (
+              <div
+                key={item.title}
+                className="rounded-3xl border border-white/10 bg-slate-950/60 p-6"
+              >
+                <h3 className="text-xl font-bold text-amber-200">
+                  {item.title}
+                </h3>
+
+                <p className="mt-3 leading-8 text-slate-300">{item.text}</p>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
-      </section>
+
+        <section className="mt-10 rounded-3xl border border-white/10 bg-slate-900/80 p-6">
+          <h2 className="text-3xl font-bold">רכבות נופיות — לא חובה</h2>
+
+          <p className="mt-4 max-w-4xl leading-8 text-slate-300">
+            רכבות כמו Mont-Blanc Express או GoldenPass Express יכולות להיות
+            חוויה יפה מאוד, אבל הן צריכות להשתלב נכון. בטיול קצר עדיף לפעמים
+            לוותר עליהן ולהתמקד בערים, שווקים וקניות. בטיול ארוך יותר אפשר
+            לבדוק אם הן מתאימות למסלול סביב לוזאן, מונטרה, אגם ז׳נבה או
+            אינטרלאקן.
+          </p>
+        </section>
+
+        <section className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-6">
+          <h2 className="text-3xl font-bold">עקרונות תכנון</h2>
+
+          <div className="mt-5 space-y-3">
+            {principles.map((principle) => (
+              <p key={principle} className="leading-7 text-slate-300">
+                ✓ {principle}
+              </p>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-3xl border border-amber-300/30 bg-amber-300/10 p-6">
+          <h2 className="text-2xl font-bold text-amber-200">
+            מתחילים מהשאלות
+          </h2>
+
+          <p className="mt-3 leading-8 text-slate-200">
+            כדי לקבל כיוון אישי יותר, כדאי להתחיל בעמוד השאלות ולבחור את אורך
+            הטיול, סגנון הטיול, אזור הלינה ומה חשוב במיוחד לנערה בת 13.
+          </p>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/search"
+              className="rounded-full bg-amber-300 px-7 py-3 text-center font-bold text-slate-950 hover:bg-amber-200"
+            >
+              התחלת תכנון
+            </Link>
+
+            <Link
+              href="/results"
+              className="rounded-full border border-white/20 px-7 py-3 text-center font-semibold text-slate-100 hover:border-amber-300"
+            >
+              צפייה בהצעת כיוון
+            </Link>
+          </div>
+        </section>
+      </div>
     </main>
   );
 }

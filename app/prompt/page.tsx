@@ -66,7 +66,7 @@ export default function PromptPage() {
   const teenText =
     answers.teenPriorities && answers.teenPriorities.length > 0
       ? answers.teenPriorities.join(", ")
-      : answers.teenPriority || "Not selected yet";
+      : answers.teenPriority || "עדיין לא נבחר";
 
   const promptText = useMemo(() => {
     return `Create a realistic Switzerland Christmas family itinerary.
@@ -77,11 +77,11 @@ Family profile:
 - Trip length: up to 10 days
 
 Saved family answers:
-- Trip length: ${answers.tripLength || "Not selected yet"}
-- Travel style: ${answers.travelStyle || "Not selected yet"}
-- Scenic train interest: ${answers.scenicInterest || "Not selected yet"}
-- Scenic train option: ${answers.scenicOption || "Not selected yet"}
-- Preferred base area: ${answers.baseArea || "Not selected yet"}
+- Trip length: ${answers.tripLength || "עדיין לא נבחר"}
+- Travel style: ${answers.travelStyle || "עדיין לא נבחר"}
+- Scenic train interest: ${answers.scenicInterest || "עדיין לא נבחר"}
+- Scenic train option: ${answers.scenicOption || "עדיין לא נבחר"}
+- Preferred base area: ${answers.baseArea || "עדיין לא נבחר"}
 - Teen-friendly priorities: ${teenText}
 
 Main goals:
