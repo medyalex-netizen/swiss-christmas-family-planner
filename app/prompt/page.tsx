@@ -3,42 +3,24 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
-const STORAGE_KEY = "tuscanyAutumnAnswers";
+const STORAGE_KEY = "swissChristmasAnswers";
 
 type Answers = {
   tripLength: string;
-  tripStartDate: string;
-tripEndDate: string;
-arrivalPoint: string;
-departurePoint: string;
-  transportation: string;
   travelStyle: string;
   scenicInterest: string;
   scenicOption: string;
   baseArea: string;
-  lodgingType: string;
-  lodgingBudget: string;
-  roomSetup: string;
-  lodgingPriorities?: string[];
   teenPriorities?: string[];
   teenPriority?: string;
 };
 
 const defaultAnswers: Answers = {
   tripLength: "",
-  tripStartDate: "",
-tripEndDate: "",
-arrivalPoint: "",
-departurePoint: "",
-  transportation: "",
   travelStyle: "",
   scenicInterest: "",
   scenicOption: "",
   baseArea: "",
-  lodgingType: "",
-  lodgingBudget: "",
-  roomSetup: "",
-lodgingPriorities: [],
   teenPriorities: [],
   teenPriority: "",
 };
@@ -49,10 +31,11 @@ const plannerRules = [
   "לא להעמיס יותר מדי על כל יום.",
   "לשלב זמן קניות, אוכל, קפה ושיטוט רגוע.",
   "לתת מקום גם למה שמעניין נערה בת 13.",
-  "להשאיר יום נסיעה נופי כאפשרות מומלצת, אבל לא חובה.",
-  "לא לשלב יותר מדי כפרים, עיירות או נסיעות ארוכות אם הטיול קצר מדי.",
-  "לבדוק שעות פתיחה, זמני נסיעה, חניה, מזג אוויר ועלויות לפני הזמנה.",
+  "להשאיר את Mont-Blanc Express כאפשרות מומלצת, אבל לא חובה.",
+  "לא לשלב ימי הרים או רכבות נופיות אם הטיול קצר מדי.",
+  "לבדוק תאריכים, שעות פתיחה, רכבות, מזג אוויר ועלויות לפני הזמנה.",
 ];
+
 export default function PromptPage() {
   const [answers, setAnswers] = useState<Answers>(defaultAnswers);
 
@@ -84,12 +67,9 @@ export default function PromptPage() {
     answers.teenPriorities && answers.teenPriorities.length > 0
       ? answers.teenPriorities.join(", ")
       : answers.teenPriority || "עדיין לא נבחר";
-const lodgingPrioritiesText =
-  answers.lodgingPriorities && answers.lodgingPriorities.length > 0
-    ? answers.lodgingPriorities.join(", ")
-    : "עדיין לא נבחר";
+
   const promptText = useMemo(() => {
-    return `Create a realistic Tuscany autumn family itinerary.
+    return `Create a realistic Switzerland Christmas family itinerary.
 
 Family profile:
 - Two parents
@@ -98,46 +78,35 @@ Family profile:
 
 Saved family answers:
 - Trip length: ${answers.tripLength || "עדיין לא נבחר"}
-- Trip start date: ${answers.tripStartDate || "עדיין לא נבחר"}
-- Trip end date: ${answers.tripEndDate || "עדיין לא נבחר"}
-- Arrival point: ${answers.arrivalPoint || "עדיין לא נבחר"}
-- Departure point: ${answers.departurePoint || "עדיין לא נבחר"}
-- Travel pace: ${answers.travelStyle || "עדיין לא נבחר"}
-- Transportation: ${answers.transportation || "עדיין לא נבחר"}
-- Scenery and nature interest: ${answers.scenicInterest || "עדיין לא נבחר"}
-- Preferred scenic day: ${answers.scenicOption || "עדיין לא נבחר"}
+- Travel style: ${answers.travelStyle || "עדיין לא נבחר"}
+- Scenic train interest: ${answers.scenicInterest || "עדיין לא נבחר"}
+- Scenic train option: ${answers.scenicOption || "עדיין לא נבחר"}
 - Preferred base area: ${answers.baseArea || "עדיין לא נבחר"}
-- Preferred lodging type: ${answers.lodgingType || "עדיין לא נבחר"}
-- Lodging budget per night: ${answers.lodgingBudget || "עדיין לא נבחר"}
-- Preferred room/bed setup: ${answers.roomSetup || "עדיין לא נבחר"}
-- Lodging priorities: ${lodgingPrioritiesText}
-
 - Teen-friendly priorities: ${teenText}
 
 Main goals:
-- Historic cities, picturesque towns, local food, shopping, scenery, and relaxed family time
-- Florence, Siena, Lucca, Pisa, Chianti, San Gimignano, and Val d'Orcia when they fit the trip length
+- Christmas markets
+- Shopping
+- Family-friendly attractions
+- Winter atmosphere
 - Beautiful places for photos
-- Gelato, cafés, local food, and relaxed city time
-- A balanced combination of cities, towns, countryside, and free time
-- Activities that are enjoyable for a 13-year-old girl
+- Chocolate, cafés and relaxed city time
+- Scenic train trips only when they truly fit the route
 
 Important planning rules:
 - Do not overload the days.
-- Keep walking and driving reasonable.
+- Keep walking reasonable.
 - Include enough free time.
-- Do not force too many towns, villages, or long drives into a short trip.
-- Adapt the route to the selected transportation option.
-- Avoid driving inside restricted historic-center zones unless access is clearly permitted.
-- Check parking and ZTL restrictions before driving into Florence, Siena, Lucca, Pisa, or other historic towns.
-- Scenic driving days are most relevant when the trip includes Chianti, Val d'Orcia, Pienza, Montepulciano, or San Gimignano.
-- Florence, Siena, Lucca, and Pisa can be combined with countryside stays depending on trip length and transportation.
-- Outdoor and countryside plans should depend on weather, driving time, road conditions, cost, and family energy.
-- Before final booking, check official current sources for opening hours, driving restrictions, parking, weather, ticket prices, local events, and accommodation policies.
+- Do not force mountain days into a short trip.
+- Mont-Blanc Express is recommended, but optional.
+- Mont-Blanc Express is most relevant if the trip includes Lake Geneva, Lausanne, Montreux, Geneva or Martigny.
+- GoldenPass Express may fit when connecting Lake Geneva with Interlaken or the Bernese Oberland.
+- Jungfraujoch / Grindelwald should depend on weather, visibility, cost and family energy.
+- Before final booking, check official current sources for Christmas market dates, train schedules, weather, ticket prices, opening hours and passport or border requirements.
 
 Please first ask any missing clarification questions.
 Only after that, suggest a realistic day-by-day itinerary.`;
-  }, [answers, teenText, lodgingPrioritiesText]);
+  }, [answers, teenText]);
 
   return (
     <main dir="rtl" className="min-h-screen bg-slate-950 px-6 py-10 text-white">
@@ -164,7 +133,7 @@ Only after that, suggest a realistic day-by-day itinerary.`;
 
         <section className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl">
           <p dir="ltr" className="text-right text-sm font-semibold text-amber-300">
-            Tuscany Autumn Family Planner
+            Swiss Christmas Family Planner
           </p>
 
           <p className="mt-3 leading-8 text-slate-200">
@@ -182,24 +151,15 @@ Only after that, suggest a realistic day-by-day itinerary.`;
 
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             <AnswerCard label="אורך הטיול" value={answers.tripLength} />
-
-<AnswerCard label="סגנון הטיול" value={answers.travelStyle} />
-
-<AnswerCard
-  label="אופן ההתניידות"
-  value={answers.transportation}
-/>
-
-<AnswerCard
-  label="עניין בנופים ובטבע"
-  value={answers.scenicInterest}
-/>
-
-<AnswerCard
-  label="סוג היום הנופי שמעניין אתכם"
-  value={answers.scenicOption}
-/>
-
+            <AnswerCard label="סגנון הטיול" value={answers.travelStyle} />
+            <AnswerCard
+              label="עניין ברכבות נופיות"
+              value={answers.scenicInterest}
+            />
+            <AnswerCard
+              label="רכבת נופית שמעניינת אתכם"
+              value={answers.scenicOption}
+            />
             <AnswerCard label="אזור לינה מועדף" value={answers.baseArea} />
             <AnswerCard label="מה חשוב לנערה בת 13" value={teenText} />
           </div>
