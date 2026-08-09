@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Swiss Christmas Family Planner",
+  title: "Tuscany Autumn Family Planner",
   description:
-    "A family planner for a Switzerland Christmas trip with markets, shopping, attractions and scenic train trips.",
+    "Interactive autumn family trip planner for TuscInteractive autumn family trip planner for Tuscany..",
 };
 
 export default function RootLayout({

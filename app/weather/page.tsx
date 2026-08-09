@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-type AppLanguage = "he" | "en" | "ro";
+
 
 type SearchAnswers = {
   destination: string;
@@ -11,15 +11,7 @@ type SearchAnswers = {
   travelers: string;
 };
 
-type FilterAnswers = {
-  walkingDistance: string;
-  hotelLevel: string;
-  hotelArea: string;
-  guidedTours: string;
-  freeWalkingTourSource?: string;
-  mapPreference: string;
-  outputLanguage?: string;
-};
+
 
 type DailyForecast = {
   date: string;
@@ -30,11 +22,11 @@ type DailyForecast = {
 
 const ui = {
   he: {
-    appName: "מתכנן טיולים לגיל השלישי",
+    appName: "Tuscany Autumn Family Planner",
     title: "בדיקת מזג אוויר וטמפרטורות",
     back: "חזרה למסלול",
     badge: "תחזית חיה",
-    weatherFor: "מזג אוויר ל-",
+    weatherFor: "מזג אוויר ב-",
     description:
       "הדף הזה מציג טמפרטורה נוכחית ותחזית לימים הקרובים. אם הטיול הוא בתאריך רחוק, צריך לבדוק שוב קרוב יותר לנסיעה.",
     status: "מצב",
@@ -65,34 +57,34 @@ const ui = {
     noLocation: "לא נמצא מיקום לתחזית. נסו יעד אחר.",
     failed: "לא הצלחנו לטעון תחזית. בדקו חיבור אינטרנט או נסו שוב.",
     hotTips: [
-      "להתחיל את היום מוקדם יותר.",
-      "להימנע מהליכה ארוכה אחרי ארוחת צהריים.",
-      "להוסיף מנוחה במלון בשעות החמות.",
-      "להשתמש ביותר מוניות.",
-      "לבחור כנסיות, מוזיאונים, בתי קפה ומקומות מוצלים.",
-      "לשמור את ארוחת הערב קרובה למלון.",
-    ],
+  "להתחיל את היום מוקדם יותר ולתכנן את הפעילויות החיצוניות לשעות הנעימות.",
+  "להעדיף רחובות מוצלים, שווקים מקורים, מוזיאון קצר או בית קפה בשעות החמות.",
+  "להשאיר זמן למנוחה, גלידה או ארוחה רגועה באמצע היום.",
+  "להצטייד במים, כובעים וקרם הגנה.",
+  "לקצר יום של כפרים או תצפיות אם החום מכביד על המשפחה.",
+  "להעביר פעילות פתוחה לשעה מאוחרת יותר ולשמור על תוכנית גמישה.",
+],
     rainTips: [
-      "להיזהר מאבנים חלקות ומדרכות לא ישרות.",
-      "להשתמש במוניות במקום הליכות ארוכות.",
-      "לבחור מוזיאונים, כנסיות, בתי קפה או שווקים מקורים.",
-      "לקצר מסלולי הליכה.",
-      "להוסיף זמן מעבר בין מקומות.",
-      "לא להתחייב לסיור הליכה ארוך בגשם חזק.",
-    ],
+  "להעדיף מוזיאון קצר, שוק מקורה, בית קפה או פעילות אוכל בתוך מבנה.",
+  "להשאיר יותר זמן למעברים ולהימנע מתכנון צפוף.",
+  "להחליף יום של תצפיות או כפרים ביום עירוני וגמיש יותר.",
+  "להצטייד במטריות, מעילים קלים ונעליים שאינן מחליקות.",
+  "להימנע מנהיגה ארוכה בכבישים כפריים אם הראות או תנאי הדרך אינם טובים.",
+  "לבדוק שוב את התחזית בבוקר ולשנות את סדר הימים לפי הצורך.",
+],
     checkTexts: {
-      weather: "לבדוק תחזית עדכנית, גשם, עומס חום ורוח לפני כל יום.",
-      tour: "לבדוק שעה, נקודת מפגש, משך וקושי של הסיור לפני שיוצאים.",
-      maps: "לשמור מקומות במפות. שמות כמו Pantheon, Colosseum, Council Square ו-Black Church נשארים באנגלית או בשם המקורי.",
-      taxi: "אם יש חום, גשם, עייפות או הליכה ארוכה — לבחור מונית ומנוחה במקום עוד אתר.",
-    },
+  weather: "לבדוק תחזית עדכנית, סיכוי לגשם, עומס חום ורוח לפני כל יום.",
+  tour: "לבדוק שעות פתיחה, הזמנות, משך הפעילות והתאמה למשפחה לפני שיוצאים.",
+  maps: "לשמור מראש במפות את המלון, החניה, תחנות הרכבת, המסעדות והאתרים המתוכננים בכל יום.",
+  taxi: "אם יש חום, גשם או עייפות, לקצר את התוכנית, לבחור פעילות קרובה ולהשאיר זמן למנוחה.",
+},
   },
   en: {
-    appName: "Senior Trip Planner",
+    appName: "Tuscany Autumn Family Planner",
     title: "Weather and temperature check",
     back: "Back to itinerary",
     badge: "Live forecast",
-    weatherFor: "Weather for ",
+     weatherFor: "Weather for ",
     description:
       "This page shows the current temperature and the forecast for the next few days. If the trip is far in the future, check again closer to travel.",
     status: "Status",
@@ -139,14 +131,14 @@ const ui = {
       "Do not commit to a long walking tour in heavy rain.",
     ],
     checkTexts: {
-      weather: "Check current forecast, rain, heat load, and wind before each day.",
-      tour: "Check time, meeting point, duration, and difficulty before going.",
-      maps: "Save places in maps. Names like Pantheon, Colosseum, Council Square, and Black Church stay in English or original spelling.",
-      taxi: "If there is heat, rain, tiredness, or long walking, choose taxi and rest instead of one more attraction.",
-    },
+  weather: "Check the latest forecast, rain chance, heat, and wind before each day.",
+  tour: "Check opening hours, reservations, activity duration, and family suitability before leaving.",
+  maps: "Save the hotel, parking, train stations, restaurants, and planned attractions in maps before each day.",
+  taxi: "If there is heat, rain, or tiredness, shorten the plan, choose a nearby activity, and leave time to rest.",
+},
   },
   ro: {
-    appName: "Planificator de calatorii pentru seniori",
+    appName: "Tuscany Autumn Family Planner",
     title: "Verificare vreme si temperaturi",
     back: "Inapoi la itinerar",
     badge: "Prognoza live",
@@ -197,58 +189,31 @@ const ui = {
       "Nu alegeti un tur lung pe jos in ploaie puternica.",
     ],
     checkTexts: {
-      weather: "Verificati prognoza actuala, ploaia, caldura si vantul inainte de fiecare zi.",
-      tour: "Verificati ora, punctul de intalnire, durata si dificultatea inainte de plecare.",
-      maps: "Salvati locurile in harti. Nume precum Pantheon, Colosseum, Council Square si Black Church raman in engleza sau in forma originala.",
-      taxi: "Daca este cald, ploua, sunteti obosit sau este mers lung, alegeti taxi si odihna in loc de inca un obiectiv.",
-    },
+  weather: "Verificati prognoza actualizata, sansa de ploaie, caldura si vantul inainte de fiecare zi.",
+  tour: "Verificati programul, rezervarile, durata activitatii si daca este potrivita pentru familie.",
+  maps: "Salvati din timp in harti hotelul, parcarea, garile, restaurantele si obiectivele planificate pentru fiecare zi.",
+  taxi: "Daca este foarte cald, ploua sau familia este obosita, scurtati programul, alegeti o activitate apropiata si lasati timp pentru odihna.",
+},
   },
 };
 
-const valueText: Record<string, Record<AppLanguage, string>> = {
-  "7 days": { he: "7 ימים", en: "7 days", ro: "7 zile" },
-  "3 days": { he: "3 ימים", en: "3 days", ro: "3 zile" },
-  "4 days": { he: "4 ימים", en: "4 days", ro: "4 zile" },
-  "5 days": { he: "5 ימים", en: "5 days", ro: "5 zile" },
-  "10 days": { he: "10 ימים", en: "10 days", ro: "10 zile" },
-  "14 days": { he: "14 ימים", en: "14 days", ro: "14 zile" },
-  "1-2 km per day": { he: "1-2 ק״מ ביום", en: "1-2 km per day", ro: "1-2 km pe zi" },
-  "2-4 km per day": { he: "2-4 ק״מ ביום", en: "2-4 km per day", ro: "2-4 km pe zi" },
-  "4-6 km per day": { he: "4-6 ק״מ ביום", en: "4-6 km per day", ro: "4-6 km pe zi" },
-  "Comfortable 3-star hotel": { he: "מלון 3 כוכבים נוח", en: "Comfortable 3-star hotel", ro: "Hotel confortabil de 3 stele" },
-  "4-star hotel": { he: "מלון 4 כוכבים", en: "4-star hotel", ro: "Hotel de 4 stele" },
-  "Quiet central neighborhood": { he: "שכונה מרכזית ושקטה", en: "Quiet central neighborhood", ro: "Cartier central si linistit" },
-  "Free walking tours only": { he: "רק סיורי הליכה חינמיים", en: "Free walking tours only", ro: "Doar tururi gratuite pe jos" },
-  "Only if short and easy": { he: "רק אם קצר וקל", en: "Only if short and easy", ro: "Doar daca este scurt si usor" },
-  "Google Maps day-by-day routes": { he: "Google Maps - מסלולים לפי יום", en: "Google Maps day-by-day routes", ro: "Google Maps - rute pe zile" },
-  "Google Maps offline area": { he: "Google Maps - אזור להורדה אופליין", en: "Google Maps offline area", ro: "Google Maps - zona offline" },
-};
+
 
 const defaultSearch: SearchAnswers = {
-  destination: "Rome",
-  travelDates: "sept 10-17",
-  tripLength: "7 days",
-  travelers: "Senior couple",
+  destination: "Florence",
+  travelDates: "",
+  tripLength: "",
+  travelers: "Two parents and one 13-year-old daughter",
 };
 
-const defaultFilters: FilterAnswers = {
-  walkingDistance: "2-4 km per day",
-  hotelLevel: "Comfortable 3-star hotel",
-  hotelArea: "Quiet central neighborhood",
-  guidedTours: "Free walking tours only",
-  freeWalkingTourSource: "GuruWalk Rome",
-  mapPreference: "Google Maps day-by-day routes",
-  outputLanguage: "Hebrew",
-};
 
-function translateValue(value: string | undefined, language: AppLanguage) {
-  return valueText[value || ""]?.[language] || value || "";
-}
+
+
 
 export default function WeatherPage() {
-  const [appLanguage, setAppLanguage] = useState<AppLanguage | null>(null);
+ 
   const [search, setSearch] = useState<SearchAnswers>(defaultSearch);
-  const [filters, setFilters] = useState<FilterAnswers>(defaultFilters);
+  
 
   const [currentTemp, setCurrentTemp] = useState<number | null>(null);
   const [feelsLike, setFeelsLike] = useState<number | null>(null);
@@ -256,43 +221,11 @@ export default function WeatherPage() {
   const [weatherStatus, setWeatherStatus] = useState("loadingLocation");
   const [matchedLocation, setMatchedLocation] = useState("");
 
-  useEffect(() => {
-    function syncFromStorage() {
-      const savedLanguage = localStorage.getItem("seniorTripAppLanguage");
-
-      if (savedLanguage === "he" || savedLanguage === "en" || savedLanguage === "ro") {
-        setAppLanguage(savedLanguage);
-      } else {
-        setAppLanguage("he");
-      }
-
-      const savedSearch = localStorage.getItem("seniorTripSearch");
-      const savedFilters = localStorage.getItem("seniorTripFilters");
-
-      if (savedSearch) {
-        setSearch(JSON.parse(savedSearch));
-      }
-
-      if (savedFilters) {
-        setFilters(JSON.parse(savedFilters));
-      }
-    }
-
-    syncFromStorage();
-
-    window.addEventListener("pageshow", syncFromStorage);
-    window.addEventListener("focus", syncFromStorage);
-
-    return () => {
-      window.removeEventListener("pageshow", syncFromStorage);
-      window.removeEventListener("focus", syncFromStorage);
-    };
-  }, []);
-
+  
   useEffect(() => {
     async function loadWeather() {
       try {
-        const destination = search.destination || "Rome";
+        const destination = search.destination || "Florence";
 
         setWeatherStatus("loadingLocation");
         setCurrentTemp(null);
@@ -349,19 +282,11 @@ export default function WeatherPage() {
     loadWeather();
   }, [search.destination]);
 
-  if (appLanguage === null) {
-    return (
-      <main className="min-h-screen bg-slate-50 px-6 py-10 text-slate-900">
-        <div className="mx-auto max-w-6xl rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
-          <p className="text-xl font-semibold">Loading...</p>
-        </div>
-      </main>
-    );
-  }
-
-  const t = ui[appLanguage];
-  const isHebrew = appLanguage === "he";
-  const destination = search.destination || "Rome";
+  
+    
+  const t = ui.he;
+const isHebrew = true;
+  const destination = search.destination || "Florence";
   const statusText =
     weatherStatus === "loadingLocation"
       ? t.loadingLocation
@@ -375,12 +300,12 @@ export default function WeatherPage() {
 
   return (
     <main
-      dir={isHebrew ? "rtl" : "ltr"}
-      lang={appLanguage}
-      className={`min-h-screen bg-slate-50 px-6 py-10 ${isHebrew ? "text-right" : "text-left"} text-slate-900`}
+      dir="rtl"
+lang="he"
+className="min-h-screen bg-slate-950 px-6 py-10 text-right text-white"
     >
       <div className="mx-auto max-w-6xl">
-        <header className={`mb-8 flex flex-col gap-4 sm:items-center sm:justify-between ${isHebrew ? "sm:flex-row-reverse" : "sm:flex-row"}`}>
+        <header className="mb-8 flex flex-col gap-4 sm:flex-row-reverse sm:items-center sm:justify-between">
           <div>
             <p className="text-lg font-bold text-blue-700">
               {t.appName}
@@ -390,13 +315,13 @@ export default function WeatherPage() {
 
           <a
             href="/itinerary"
-            className="rounded-2xl border border-blue-700 bg-white px-5 py-3 text-center text-lg font-semibold text-blue-700 hover:bg-blue-50"
+            className="rounded-2xl border border-white/10 bg-slate-900/80 px-5 py-3 text-center text-lg font-semibold text-amber-300 hover:border-amber-300"
           >
             {t.back}
           </a>
         </header>
 
-        <section className="rounded-3xl bg-white p-8 shadow-sm ring-1 ring-slate-200">
+        <section className="rounded-3xl border border-white/10 bg-slate-900/80 p-8">
           <p className="mb-4 inline-block rounded-full bg-blue-50 px-4 py-2 text-lg font-semibold text-blue-700">
             {t.badge}
           </p>
@@ -409,7 +334,7 @@ export default function WeatherPage() {
             {t.description}
           </p>
 
-          <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-lg font-semibold text-slate-700">
+          <p className="mt-4 rounded-2xl border border-white/10 bg-slate-900/80 p-4 text-lg font-semibold text-slate-100">
             {t.status}: {statusText}
           </p>
 
@@ -420,48 +345,40 @@ export default function WeatherPage() {
           )}
 
           <div className="mt-8 grid gap-5 md:grid-cols-3">
-            <div className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
-              <p className="text-sm font-semibold text-slate-500">{t.currentTemp}</p>
+            <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-5">
+              <p className="text-sm font-semibold text-slate-300">{t.currentTemp}</p>
               <p className="mt-2 text-4xl font-bold">
                 {currentTemp === null ? "..." : `${Math.round(currentTemp)}°C`}
               </p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
+            <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-5">
               <p className="text-sm font-semibold text-slate-500">{t.feelsLike}</p>
               <p className="mt-2 text-4xl font-bold">
                 {feelsLike === null ? "..." : `${Math.round(feelsLike)}°C`}
               </p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
+            <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-5">
               <p className="text-sm font-semibold text-slate-500">{t.travelDates}</p>
               <p className="mt-2 text-xl font-bold">{search.travelDates || t.notSelected}</p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
+            <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-5">
               <p className="text-sm font-semibold text-slate-500">{t.tripLength}</p>
-              <p className="mt-2 text-xl font-bold">{translateValue(search.tripLength, appLanguage)}</p>
+              <p className="mt-2 text-xl font-bold">  {search.tripLength || t.notSelected}</p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
-              <p className="text-sm font-semibold text-slate-500">{t.walking}</p>
-              <p className="mt-2 text-xl font-bold">{translateValue(filters.walkingDistance, appLanguage)}</p>
-            </div>
-
-            <div className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
-              <p className="text-sm font-semibold text-slate-500">{t.maps}</p>
-              <p className="mt-2 text-xl font-bold">{translateValue(filters.mapPreference, appLanguage)}</p>
-            </div>
+            
           </div>
         </section>
 
-        <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <section className="mt-8 rounded-3xl border border-white/10 bg-slate-900/80 p-6">
           <h2 className="text-3xl font-bold">{t.forecast7}</h2>
 
           <div className="mt-5 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {dailyForecast.map((day) => (
-              <div key={day.date} className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
+              <div key={day.date} className="rounded-2xl border border-white/10 bg-slate-900/80 p-5">
                 <p className="text-lg font-bold">{day.date}</p>
                 <p className="mt-2 text-lg">{t.max}: {Math.round(day.max)}°C</p>
                 <p className="text-lg">{t.min}: {Math.round(day.min)}°C</p>
@@ -472,20 +389,20 @@ export default function WeatherPage() {
         </section>
 
         <section className="mt-8 grid gap-6 lg:grid-cols-2">
-          <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-6">
             <h2 className="text-3xl font-bold">{t.hotTitle}</h2>
 
-            <ul className="mt-5 space-y-3 text-lg leading-8 text-slate-700">
+            <ul className="mt-5 space-y-3 text-lg leading-8 text-slate-300">
               {t.hotTips.map((tip) => (
                 <li key={tip}>{tip}</li>
               ))}
             </ul>
           </div>
 
-          <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+          <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-6">
             <h2 className="text-3xl font-bold">{t.rainTitle}</h2>
 
-            <ul className="mt-5 space-y-3 text-lg leading-8 text-slate-700">
+            <ul className="mt-5 space-y-3 text-lg leading-8 text-slate-300">
               {t.rainTips.map((tip) => (
                 <li key={tip}>{tip}</li>
               ))}
@@ -493,32 +410,32 @@ export default function WeatherPage() {
           </div>
         </section>
 
-        <section className="mt-8 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <section className="mt-8 rounded-3xl border border-white/10 bg-slate-900/80 p-6">
           <h2 className="text-3xl font-bold">{t.checksTitle}</h2>
 
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <div className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
+            <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-5">
               <h3 className="text-xl font-bold">{t.weatherCheck}</h3>
-              <p className="mt-2 text-lg leading-7 text-slate-600">
+              <p className="mt-2 text-lg leading-7 text-slate-300">
                 {t.checkTexts.weather}
               </p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
+            <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-5">
               <h3 className="text-xl font-bold">{t.tourCheck}</h3>
               <p className="mt-2 text-lg leading-7 text-slate-600">
-                {t.checkTexts.tour} {filters.freeWalkingTourSource ? `(${filters.freeWalkingTourSource})` : ""}
+                {t.checkTexts.tour} 
               </p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
+            <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-5">
               <h3 className="text-xl font-bold">{t.mapsCheck}</h3>
               <p className="mt-2 text-lg leading-7 text-slate-600">
                 {t.checkTexts.maps}
               </p>
             </div>
 
-            <div className="rounded-2xl bg-slate-50 p-5 ring-1 ring-slate-200">
+            <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-5">
               <h3 className="text-xl font-bold">{t.taxiCheck}</h3>
               <p className="mt-2 text-lg leading-7 text-slate-600">
                 {t.checkTexts.taxi}
@@ -537,7 +454,7 @@ export default function WeatherPage() {
 
           <a
             href="/"
-            className="rounded-2xl border border-slate-300 bg-white px-8 py-4 text-center text-xl font-semibold text-slate-800 hover:bg-slate-50"
+            className="rounded-2xl border border-white/10 bg-amber-300 px-8 py-4 text-center text-xl font-semibold text-slate-950 hover:bg-amber-200"
           >
             {t.backHome}
           </a>
