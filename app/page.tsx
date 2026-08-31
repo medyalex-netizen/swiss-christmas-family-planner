@@ -158,7 +158,7 @@ export default function Home() {
 
           <p className="mt-3 leading-8 text-slate-200">
             כדי לקבל כיוון אישי יותר, כדאי להתחיל בעמוד השאלות ולבחור את אורך
-            הטיול, סגנון הטיול, אזור הלינה ומה חשוב במיוחד ללנער/ה.
+            הטיול, סגנון הטיול, אזור הלינה ומה חשוב במיוחד לנער/ה.
           </p>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
