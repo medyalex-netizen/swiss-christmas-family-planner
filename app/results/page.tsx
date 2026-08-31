@@ -8,9 +8,12 @@ const STORAGE_KEY = "swissChristmasAnswers";
 type Answers = {
   tripLength: string;
   travelStyle: string;
+  winterComfort?: string;
   scenicInterest: string;
   scenicOption: string;
   baseArea: string;
+  lodgingType?: string;
+  lodgingPriority?: string;
   teenPriorities?: string[];
   teenPriority?: string;
 };
@@ -18,13 +21,15 @@ type Answers = {
 const defaultAnswers: Answers = {
   tripLength: "",
   travelStyle: "",
+  winterComfort: "",
   scenicInterest: "",
   scenicOption: "",
   baseArea: "",
+  lodgingType: "",
+  lodgingPriority: "",
   teenPriorities: [],
   teenPriority: "",
 };
-
 const tripLengthIdeas = [
   {
     title: "טיול קצר — 5 עד 6 ימים",
@@ -88,7 +93,7 @@ const familyRules = [
   "לשלב זמן חופשי לקניות, אוכל, קפה ושיטוט רגוע.",
   "לבדוק תחזית מזג אוויר לפני ימי הרים ורכבות נופיות.",
   "לשמור אפשרות לשינוי מסלול במקרה של שלג, גשם או עייפות.",
-  "לתת מקום גם למה שמעניין נערה בת 13, ולא רק לאטרקציות של מבוגרים.",
+  "לתת מקום גם למה שמעניין נער/ה  , ולא רק לאטרקציות של מבוגרים.",
 ];
 
 export default function ResultsPage() {
@@ -117,12 +122,20 @@ export default function ResultsPage() {
       setAnswers(defaultAnswers);
     }
   }, []);
-
-  const teenText =
-    answers.teenPriorities && answers.teenPriorities.length > 0
-      ? answers.teenPriorities.join(", ")
-      : answers.teenPriority || "עדיין לא נבחר";
-
+  
+const teenText =
+  answers.teenPriority ||
+  (answers.teenPriorities && answers.teenPriorities.length > 0
+    ? answers.teenPriorities.join(", ")
+    : "עדיין לא נבחר");
+  const selectedTripLengthIdeas =
+  answers.tripLength.includes("5") && answers.tripLength.includes("6")
+    ? [tripLengthIdeas[0]]
+    : answers.tripLength.includes("7") && answers.tripLength.includes("8")
+      ? [tripLengthIdeas[1]]
+      : answers.tripLength.includes("9") && answers.tripLength.includes("10")
+        ? [tripLengthIdeas[2]]
+        : tripLengthIdeas;
   return (
     <main dir="rtl" className="min-h-screen bg-slate-950 px-6 py-10 text-white">
       <div className="mx-auto max-w-6xl">
@@ -158,26 +171,38 @@ export default function ResultsPage() {
           <h2 className="text-2xl font-bold">התשובות שנשמרו</h2>
 
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <AnswerCard label="אורך הטיול" value={answers.tripLength} />
-            <AnswerCard label="סגנון הטיול" value={answers.travelStyle} />
-            <AnswerCard
-              label="עניין ברכבות נופיות"
-              value={answers.scenicInterest}
-            />
-            <AnswerCard
-              label="רכבת נופית שמעניינת אתכם"
-              value={answers.scenicOption}
-            />
-            <AnswerCard label="אזור לינה מועדף" value={answers.baseArea} />
-            <AnswerCard label="מה חשוב לנערה בת 13" value={teenText} />
+           <AnswerCard label="משך הטיול" value={answers.tripLength} />
+<AnswerCard label="חוויית חג המולד" value={answers.travelStyle} />
+<AnswerCard
+  label="קור וחורף"
+  value={answers.winterComfort || "עדיין לא נבחר"}
+/>
+<AnswerCard
+  label="עניין ברכבות נופיות"
+  value={answers.scenicInterest}
+/>
+<AnswerCard
+  label="רכבת נופית שמעניינת אתכם"
+  value={answers.scenicOption}
+/>
+<AnswerCard label="אזור בסיס מועדף" value={answers.baseArea} />
+<AnswerCard
+  label="סוג לינה אפשרי"
+  value={answers.lodgingType || "עדיין לא נבחר"}
+/>
+<AnswerCard
+  label="מה חשוב במקום הלינה"
+  value={answers.lodgingPriority || "עדיין לא נבחר"}
+/>
+<AnswerCard label="מה חשוב לנער/ה" value={teenText} />
           </div>
         </section>
 
         <section className="mt-8">
-          <h2 className="text-3xl font-bold">כיוון לפי אורך הטיול</h2>
+          <h2 className="text-3xl font-bold">כיוון לפי משך הטיול</h2>
 
           <div className="mt-5 grid gap-5 md:grid-cols-3">
-            {tripLengthIdeas.map((item) => (
+           {selectedTripLengthIdeas.map((item) => (
               <div
                 key={item.title}
                 className="rounded-3xl border border-white/10 bg-white/5 p-6"

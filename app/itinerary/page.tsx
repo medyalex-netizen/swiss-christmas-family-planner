@@ -8,23 +8,27 @@ const STORAGE_KEY = "swissChristmasAnswers";
 type Answers = {
   tripLength: string;
   travelStyle: string;
+  winterComfort?: string;
   scenicInterest: string;
   scenicOption: string;
   baseArea: string;
+  lodgingType?: string;
+  lodgingPriority?: string;
   teenPriorities?: string[];
   teenPriority?: string;
 };
-
 const defaultAnswers: Answers = {
   tripLength: "",
   travelStyle: "",
+  winterComfort: "",
   scenicInterest: "",
   scenicOption: "",
   baseArea: "",
+  lodgingType: "",
+  lodgingPriority: "",
   teenPriorities: [],
   teenPriority: "",
 };
-
 const itineraryDays = [
   {
     day: "יום 1",
@@ -114,11 +118,61 @@ export default function ItineraryPage() {
   }, []);
 
   const teenText =
-    answers.teenPriorities && answers.teenPriorities.length > 0
-      ? answers.teenPriorities.join(", ")
-      : answers.teenPriority || "עדיין לא נבחר";
+  answers.teenPriorities && answers.teenPriorities.length > 0
+    ? answers.teenPriorities.join(", ")
+    : answers.teenPriority || "עדיין לא נבחר";
 
-  return (
+const returnDay = {
+  day: "יום סיום",
+  title: "סיום הטיול וחזרה הביתה",
+  text: "בוקר רגוע, קפה חם או קניות אחרונות אם יש זמן, ולאחר מכן נסיעה לשדה התעופה או לתחנת הרכבת עם מרווח ביטחון מספיק.",
+};
+
+const isShortTrip =
+  answers.tripLength.includes("5") && answers.tripLength.includes("6");
+
+const isBalancedTrip =
+  answers.tripLength.includes("7") && answers.tripLength.includes("8");
+
+const visibleItinerary = isShortTrip
+  ? [
+      ...itineraryDays.slice(0, 5),
+      {
+        ...returnDay,
+        day: "יום 6",
+      },
+    ]
+  : isBalancedTrip
+    ? [
+        ...itineraryDays.slice(0, 7),
+        {
+          ...returnDay,
+          day: "יום 8",
+        },
+      ]
+    : itineraryDays;
+const isLausanneBase =
+  answers.baseArea.includes("לוזאן") ||
+  answers.lodgingType?.includes("לוזאן") ||
+  answers.lodgingPriority?.includes("לוזאן");
+
+const personalPlanningNotes = [
+  {
+    title: "שכבת חג מולד וחורף",
+    text: `המסלול צריך לשמור על חוויית חג מולד ברורה: שווקים, אורות, קניות, שוקולד, בתי קפה ואווירת ערב — יחד עם תכנון נוח לקור ולחורף: ${answers.winterComfort || "עדיין לא נבחר"}.`,
+  },
+  {
+    title: "לינה ובסיס הטיול",
+    text: isLausanneBase
+      ? "לוזאן יכולה לשמש כבסיס מרכזי לטיולי כוכב באזור אגם ז׳נבה, מונטרה, ווה, ז׳נבה ורכבות נופיות, במיוחד אם הלינה היא אצל חברים או משפחה."
+      : `סוג הלינה שנבחר: ${answers.lodgingType || "עדיין לא נבחר"}. חשוב שהלינה תקל על חזרה בערב משווקי חג מולד ועל גישה לרכבות.`,
+  },
+  {
+    title: "שכבת נער/ה",
+    text: `הנער/ה משפיע/ה על איכות המסלול בלי להפוך לנושא המרכזי. כדאי לשלב לפי הצורך קניות, שוקולד, תמונות, אורות, שלג, נופים וזמן חופשי. בחירה נוכחית: ${teenText}.`,
+  },
+];
+return (
     <main dir="rtl" className="min-h-screen bg-slate-950 px-6 py-10 text-white">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 flex flex-wrap gap-4">
@@ -146,6 +200,12 @@ export default function ItineraryPage() {
           >
             חזרה להנחיית התכנון
           </Link>
+          <Link
+  href="/weather"
+  className="text-sm text-amber-300 hover:text-amber-200"
+>
+  מזג אוויר
+</Link>
         </div>
 
         <section className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl">
@@ -168,26 +228,54 @@ export default function ItineraryPage() {
           <h2 className="text-2xl font-bold">התשובות שעליהן המסלול מבוסס</h2>
 
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <AnswerCard label="אורך הטיול" value={answers.tripLength} />
-            <AnswerCard label="סגנון הטיול" value={answers.travelStyle} />
-            <AnswerCard
-              label="עניין ברכבות נופיות"
-              value={answers.scenicInterest}
-            />
-            <AnswerCard
-              label="רכבת נופית שמעניינת אתכם"
-              value={answers.scenicOption}
-            />
-            <AnswerCard label="אזור לינה מועדף" value={answers.baseArea} />
-            <AnswerCard label="מה חשוב לנערה בת 13" value={teenText} />
+          <AnswerCard label="משך הטיול" value={answers.tripLength} />
+<AnswerCard label="חוויית חג המולד" value={answers.travelStyle} />
+<AnswerCard
+  label="קור וחורף"
+  value={answers.winterComfort || "עדיין לא נבחר"}
+/>
+<AnswerCard
+  label="עניין ברכבות נופיות"
+  value={answers.scenicInterest}
+/>
+<AnswerCard
+  label="רכבת נופית שמעניינת אתכם"
+  value={answers.scenicOption}
+/>
+<AnswerCard label="אזור בסיס מועדף" value={answers.baseArea} />
+<AnswerCard
+  label="סוג לינה אפשרי"
+  value={answers.lodgingType || "עדיין לא נבחר"}
+/>
+<AnswerCard
+  label="מה חשוב במקום הלינה"
+  value={answers.lodgingPriority || "עדיין לא נבחר"}
+/>
+<AnswerCard label="מה חשוב לנער/ה" value={teenText} />
           </div>
         </section>
+<section className="mt-10 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-6">
+  <h2 className="text-3xl font-bold text-amber-100">
+    התאמות אישיות למסלול
+  </h2>
 
+  <div className="mt-5 space-y-4">
+    {personalPlanningNotes.map((note) => (
+      <div
+        key={note.title}
+        className="rounded-2xl border border-white/10 bg-slate-950/40 p-4"
+      >
+        <h3 className="font-bold text-amber-300">{note.title}</h3>
+        <p className="mt-2 leading-7 text-slate-200">{note.text}</p>
+      </div>
+    ))}
+  </div>
+</section>
         <section className="mt-10">
           <h2 className="text-3xl font-bold">מסלול מוצע לפי ימים</h2>
 
           <div className="mt-5 space-y-5">
-            {itineraryDays.map((item) => (
+            {visibleItinerary.map((item) => (
               <div
                 key={item.day}
                 className="rounded-3xl border border-white/10 bg-white/5 p-6"
@@ -222,33 +310,40 @@ export default function ItineraryPage() {
           </h2>
 
           <p className="mt-3 leading-8 text-slate-200">
-            אם המסלול נראה בכיוון נכון, השלב הבא הוא להפוך אותו למסלול אמיתי
-            לפי תאריכים מדויקים, מלונות זמינים, זמני רכבות, תחזית מזג אוויר
-            ושעות פתיחה.
+           אם המסלול נראה בכיוון נכון, השלב הבא הוא להפוך אותו לתוכנית נסיעה מעשית
+לפי תאריכים מדויקים, אפשרות הלינה בפועל, זמני רכבות, תחזית מזג אוויר,
+תאריכי שווקי חג מולד ושעות פתיחה.
           </p>
 
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/prompt"
-              className="rounded-full bg-amber-300 px-6 py-3 text-center font-bold text-slate-950 hover:bg-amber-200"
-            >
-              חזרה להנחיית התכנון
-            </Link>
+         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+  <Link
+    href="/prompt"
+    className="rounded-full bg-amber-300 px-6 py-3 text-center font-bold text-slate-950 hover:bg-amber-200"
+  >
+    חזרה להנחיית התכנון
+  </Link>
 
-            <Link
-              href="/search"
-              className="rounded-full border border-white/20 px-6 py-3 text-center font-semibold text-slate-100 hover:border-amber-300"
-            >
-              שינוי תשובות
-            </Link>
+  <Link
+    href="/weather"
+    className="rounded-full border border-amber-300/60 px-6 py-3 text-center font-semibold text-amber-100 hover:bg-amber-300/10"
+  >
+    בדיקת מזג אוויר
+  </Link>
 
-            <Link
-              href="/"
-              className="rounded-full border border-white/20 px-6 py-3 text-center font-semibold text-slate-100 hover:border-amber-300"
-            >
-              חזרה לדף הבית
-            </Link>
-          </div>
+  <Link
+    href="/search"
+    className="rounded-full border border-white/20 px-6 py-3 text-center font-semibold text-slate-100 hover:border-amber-300"
+  >
+    שינוי תשובות
+  </Link>
+
+  <Link
+    href="/"
+    className="rounded-full border border-white/20 px-6 py-3 text-center font-semibold text-slate-100 hover:border-amber-300"
+  >
+    חזרה לדף הבית
+  </Link>
+</div>
         </section>
       </div>
     </main>

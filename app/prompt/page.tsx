@@ -4,33 +4,36 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 const STORAGE_KEY = "swissChristmasAnswers";
-
 type Answers = {
   tripLength: string;
   travelStyle: string;
+  winterComfort?: string;
   scenicInterest: string;
   scenicOption: string;
   baseArea: string;
+  lodgingType?: string;
+  lodgingPriority?: string;
   teenPriorities?: string[];
   teenPriority?: string;
 };
-
 const defaultAnswers: Answers = {
   tripLength: "",
   travelStyle: "",
+  winterComfort: "",
   scenicInterest: "",
   scenicOption: "",
   baseArea: "",
+  lodgingType: "",
+  lodgingPriority: "",
   teenPriorities: [],
   teenPriority: "",
 };
-
 const plannerRules = [
   "לשאול שאלות לפני בניית מסלול סופי.",
   "להשתמש בתשובות המשפחתיות שנשמרו בעמוד השאלות.",
   "לא להעמיס יותר מדי על כל יום.",
   "לשלב זמן קניות, אוכל, קפה ושיטוט רגוע.",
-  "לתת מקום גם למה שמעניין נערה בת 13.",
+  "לתת מקום גם למה שמעניין נער/ה .",
   "להשאיר את Mont-Blanc Express כאפשרות מומלצת, אבל לא חובה.",
   "לא לשלב ימי הרים או רכבות נופיות אם הטיול קצר מדי.",
   "לבדוק תאריכים, שעות פתיחה, רכבות, מזג אוויר ועלויות לפני הזמנה.",
@@ -67,47 +70,79 @@ export default function PromptPage() {
     answers.teenPriorities && answers.teenPriorities.length > 0
       ? answers.teenPriorities.join(", ")
       : answers.teenPriority || "עדיין לא נבחר";
+const promptText = useMemo(() => {
+  return `Create a Haute Couture Swiss Christmas family itinerary.
 
-  const promptText = useMemo(() => {
-    return `Create a realistic Switzerland Christmas family itinerary.
+This is not a generic Switzerland winter trip.
+This is a personalized Christmas Markets family trip, inspired by the same family-planning logic as the Tuscany Autumn Family Planner.
 
 Family profile:
 - Two parents
-- One 13-year-old daughter
+- One teenager / teen daughter
+- Include נער/ה in the family planning, without fixing a specific age.
 - Trip length: up to 10 days
 
 Saved family answers:
 - Trip length: ${answers.tripLength || "עדיין לא נבחר"}
-- Travel style: ${answers.travelStyle || "עדיין לא נבחר"}
+- Christmas experience style: ${answers.travelStyle || "עדיין לא נבחר"}
+- Winter and cold comfort: ${answers.winterComfort || "עדיין לא נבחר"}
 - Scenic train interest: ${answers.scenicInterest || "עדיין לא נבחר"}
 - Scenic train option: ${answers.scenicOption || "עדיין לא נבחר"}
 - Preferred base area: ${answers.baseArea || "עדיין לא נבחר"}
+- Possible lodging type: ${answers.lodgingType || "עדיין לא נבחר"}
+- Lodging priority: ${answers.lodgingPriority || "עדיין לא נבחר"}
 - Teen-friendly priorities: ${teenText}
 
 Main goals:
-- Christmas markets
-- Shopping
+- Christmas markets as a central experience
+- Evening lights and Christmas atmosphere
+- Shopping, gifts and beautiful streets
+- Chocolate, cafés, desserts and warm indoor breaks
 - Family-friendly attractions
-- Winter atmosphere
 - Beautiful places for photos
-- Chocolate, cafés and relaxed city time
-- Scenic train trips only when they truly fit the route
+- Winter feeling, including snow if realistic
+- Scenic trains and Alps only when they truly fit the route
+- A trip that feels special, personal and well balanced, not overloaded
 
-Important planning rules:
-- Do not overload the days.
+Lodging and base logic:
+- If lodging is with friends or family in Lausanne, treat Lausanne as a possible central base.
+- From Lausanne, consider realistic day trips to Montreux, Vevey, Geneva, Christmas markets around Lake Geneva, and suitable train experiences.
+- If lodging is a hotel or apartment, prefer a central location near a train station, Christmas markets, restaurants and easy evening return.
+- Do not overload the hosts if staying with friends.
+- Keep enough independent family time even if staying with friends.
+
+Teen layer:
+- The teenager should influence the quality of the itinerary, but should not become the main subject of the website.
+- Include things that can make the trip enjoyable for a teenager: shopping, Christmas lights, chocolate, cafés, photos, snow experience, scenic views and free time.
+- Avoid an itinerary that is only museums, long walking days or adult-focused sightseeing.
+
+Winter comfort rules:
+- Plan for cold weather, snow or rain.
+- Include warm breaks during the day.
+- Avoid too much outdoor exposure without cafés, shops or indoor alternatives.
 - Keep walking reasonable.
-- Include enough free time.
-- Do not force mountain days into a short trip.
+- Include backup options for bad weather.
+- Mountain days should depend on weather, visibility, cost and family energy.
+
+Scenic train and Alps rules:
+- Do not force scenic trains into a short trip.
 - Mont-Blanc Express is recommended, but optional.
 - Mont-Blanc Express is most relevant if the trip includes Lake Geneva, Lausanne, Montreux, Geneva or Martigny.
 - GoldenPass Express may fit when connecting Lake Geneva with Interlaken or the Bernese Oberland.
 - Jungfraujoch / Grindelwald should depend on weather, visibility, cost and family energy.
+- Mention the Swiss Alps when relevant, but keep the route realistic.
+
+Important planning rules:
+- Do not overload the days.
+- Keep the pace family-friendly.
+- Include enough free time.
+- Balance parents' comfort with the teenager's interests.
+- Prioritize Christmas markets, winter atmosphere, comfort, and realistic logistics.
 - Before final booking, check official current sources for Christmas market dates, train schedules, weather, ticket prices, opening hours and passport or border requirements.
 
 Please first ask any missing clarification questions.
 Only after that, suggest a realistic day-by-day itinerary.`;
-  }, [answers, teenText]);
-
+}, [answers, teenText]);
   return (
     <main dir="rtl" className="min-h-screen bg-slate-950 px-6 py-10 text-white">
       <div className="mx-auto max-w-6xl">
@@ -142,7 +177,7 @@ Only after that, suggest a realistic day-by-day itinerary.`;
           </p>
           <p className="mt-5 max-w-3xl leading-8 text-slate-300">
             העמוד הזה מכין הנחיה מסודרת לפי התשובות שנשמרו. אפשר להשתמש בה כדי
-            לקבל מסלול מפורט יותר, ולאחר מכן להמשיך למסלול לדוגמה בתוך האפליקציה.
+            לקבל מסלול מפורט יותר, ולאחר מכן להמשיך למסלול לדוגמה בתוך ההאתר.
           </p>
         </section>
 
@@ -150,18 +185,30 @@ Only after that, suggest a realistic day-by-day itinerary.`;
           <h2 className="text-2xl font-bold">התשובות המשפחתיות שנשמרו</h2>
 
           <div className="mt-5 grid gap-4 md:grid-cols-2">
-            <AnswerCard label="אורך הטיול" value={answers.tripLength} />
-            <AnswerCard label="סגנון הטיול" value={answers.travelStyle} />
-            <AnswerCard
-              label="עניין ברכבות נופיות"
-              value={answers.scenicInterest}
-            />
-            <AnswerCard
-              label="רכבת נופית שמעניינת אתכם"
-              value={answers.scenicOption}
-            />
-            <AnswerCard label="אזור לינה מועדף" value={answers.baseArea} />
-            <AnswerCard label="מה חשוב לנערה בת 13" value={teenText} />
+          <AnswerCard label="משך הטיול" value={answers.tripLength} />
+<AnswerCard label="חוויית חג המולד" value={answers.travelStyle} />
+<AnswerCard
+  label="קור וחורף"
+  value={answers.winterComfort || "עדיין לא נבחר"}
+/>
+<AnswerCard
+  label="עניין ברכבות נופיות"
+  value={answers.scenicInterest}
+/>
+<AnswerCard
+  label="רכבת נופית שמעניינת אתכם"
+  value={answers.scenicOption}
+/>
+<AnswerCard label="אזור בסיס מועדף" value={answers.baseArea} />
+<AnswerCard
+  label="סוג לינה אפשרי"
+  value={answers.lodgingType || "עדיין לא נבחר"}
+/>
+<AnswerCard
+  label="מה חשוב במקום הלינה"
+  value={answers.lodgingPriority || "עדיין לא נבחר"}
+/>
+<AnswerCard label="מה חשוב לנער/ה" value={teenText} />
           </div>
         </section>
 
