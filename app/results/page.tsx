@@ -136,7 +136,35 @@ const teenText =
       : answers.tripLength.includes("9") && answers.tripLength.includes("10")
         ? [tripLengthIdeas[2]]
         : tripLengthIdeas;
+          const hasSavedAnswers = Boolean(
+    answers.tripLength ||
+      answers.travelStyle ||
+      answers.winterComfort ||
+      answers.scenicInterest ||
+      answers.scenicOption ||
+      answers.baseArea ||
+      answers.lodgingType ||
+      answers.lodgingPriority ||
+      answers.teenPriority ||
+      (answers.teenPriorities && answers.teenPriorities.length > 0)
+  );
+      const saveTripLengthChoice = (title: string) => {
+    const tripLength = title.includes("5")
+      ? "5–6 ימים"
+      : title.includes("7")
+        ? "7–8 ימים"
+        : "9–10 ימים";
+
+    const nextAnswers = {
+      ...answers,
+      tripLength,
+    };
+
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextAnswers));
+  };
+
   return (
+  
     <main dir="rtl" className="min-h-screen bg-slate-950 px-6 py-10 text-white">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 flex flex-wrap gap-4">
@@ -167,52 +195,83 @@ const teenText =
           </p>
         </section>
 
-        <section className="mt-8 rounded-3xl border border-white/10 bg-slate-900/80 p-6">
+                <section className="mt-8 rounded-3xl border border-white/10 bg-slate-900/80 p-6">
           <h2 className="text-2xl font-bold">התשובות שנשמרו</h2>
 
-          <div className="mt-5 grid gap-4 md:grid-cols-2">
-           <AnswerCard label="משך הטיול" value={answers.tripLength} />
-<AnswerCard label="חוויית חג המולד" value={answers.travelStyle} />
-<AnswerCard
-  label="קור וחורף"
-  value={answers.winterComfort || "עדיין לא נבחר"}
-/>
-<AnswerCard
-  label="עניין ברכבות נופיות"
-  value={answers.scenicInterest}
-/>
-<AnswerCard
-  label="רכבת נופית שמעניינת אתכם"
-  value={answers.scenicOption}
-/>
-<AnswerCard label="אזור בסיס מועדף" value={answers.baseArea} />
-<AnswerCard
-  label="סוג לינה אפשרי"
-  value={answers.lodgingType || "עדיין לא נבחר"}
-/>
-<AnswerCard
-  label="מה חשוב במקום הלינה"
-  value={answers.lodgingPriority || "עדיין לא נבחר"}
-/>
-<AnswerCard label="מה חשוב לנער/ה" value={teenText} />
-          </div>
-        </section>
+          {!hasSavedAnswers ? (
+            <div className="mt-5 rounded-2xl border border-amber-300/30 bg-amber-300/10 p-5">
+              <h3 className="text-xl font-bold text-amber-200">
+                עדיין לא נבחרו פרטי טיול
+              </h3>
 
+              <p className="mt-3 leading-8 text-slate-200">
+                כדי לקבל כיוון ראשוני מתאים, התחילו בעמוד השאלות ובחרו משך
+                טיול, חוויית חג מולד, קור וחורף, אזור בסיס, סוג לינה ומה חשוב
+                לנער/ה.
+              </p>
+
+              <Link
+                href="/search"
+                className="mt-5 inline-block rounded-full bg-amber-300 px-6 py-3 text-center font-bold text-slate-950 hover:bg-amber-200"
+              >
+                מעבר לשאלות התכנון
+              </Link>
+            </div>
+          ) : (
+            <>
+              <p className="mt-3 text-sm text-slate-400">
+                אפשר ללחוץ על כרטיס כדי לחזור לשאלות ולערוך את התשובות.
+              </p>
+
+              <div className="mt-5 grid gap-4 md:grid-cols-2">
+                <AnswerCard label="משך הטיול" value={answers.tripLength} />
+                <AnswerCard label="חוויית חג המולד" value={answers.travelStyle} />
+                <AnswerCard
+                  label="קור וחורף"
+                  value={answers.winterComfort || "עדיין לא נבחר"}
+                />
+                <AnswerCard
+                  label="עניין ברכבות נופיות"
+                  value={answers.scenicInterest}
+                />
+                <AnswerCard
+                  label="רכבת נופית שמעניינת אתכם"
+                  value={answers.scenicOption}
+                />
+                <AnswerCard label="אזור בסיס מועדף" value={answers.baseArea} />
+                <AnswerCard
+                  label="סוג לינה אפשרי"
+                  value={answers.lodgingType || "עדיין לא נבחר"}
+                />
+                <AnswerCard
+                  label="מה חשוב במקום הלינה"
+                  value={answers.lodgingPriority || "עדיין לא נבחר"}
+                />
+                <AnswerCard label="מה חשוב לנער/ה" value={teenText} />
+              </div>
+            </>
+          )}
+        </section>
         <section className="mt-8">
           <h2 className="text-3xl font-bold">כיוון לפי משך הטיול</h2>
 
           <div className="mt-5 grid gap-5 md:grid-cols-3">
-           {selectedTripLengthIdeas.map((item) => (
-              <div
-                key={item.title}
-                className="rounded-3xl border border-white/10 bg-white/5 p-6"
-              >
-                <h3 className="text-xl font-bold text-amber-200">
-                  {item.title}
-                </h3>
-                <p className="mt-3 leading-7 text-slate-300">{item.text}</p>
-              </div>
-            ))}
+          {selectedTripLengthIdeas.map((item) => (
+  <Link
+    key={item.title}
+    href="/itinerary"
+    onClick={() => saveTripLengthChoice(item.title)}
+    className="block rounded-3xl border border-white/10 bg-white/5 p-6 transition hover:border-amber-300/60 hover:bg-white/10"
+  >
+    <h3 className="text-xl font-bold text-amber-200">
+      {item.title}
+    </h3>
+    <p className="mt-3 leading-7 text-slate-300">{item.text}</p>
+    <p className="mt-4 text-sm font-semibold text-amber-300">
+      לחצו לצפייה במסלול מתאים
+    </p>
+  </Link>
+))}
           </div>
         </section>
 
@@ -230,6 +289,17 @@ const teenText =
                 </p>
                 <h3 className="mt-2 text-2xl font-bold">{item.title}</h3>
                 <p className="mt-3 leading-7 text-slate-300">{item.text}</p>
+                                <details className="mt-4 rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+                  <summary className="cursor-pointer font-semibold text-amber-300">
+                    פתחו פירוט
+                  </summary>
+
+                  <div className="mt-3 space-y-2 text-sm leading-7 text-slate-300">
+                    <p>• מתי זה מתאים: כאשר האזור משתלב טבעית עם משך הטיול, מקום הלינה וקצב המשפחה.</p>
+                    <p>• מה כדאי לבדוק: זמני רכבות, מרחקים בערב, מזג אוויר, עומס ועלויות.</p>
+                    <p>• איך מחליטים: לא לפי שם המקום בלבד, אלא לפי נוחות, חזרה למקום הלינה ומה מתאים לנער/ה.</p>
+                  </div>
+                </details>
               </div>
             ))}
           </div>
@@ -238,6 +308,17 @@ const teenText =
         <section className="mt-10">
           <h2 className="text-3xl font-bold">רכבות נופיות שאפשר לשקול</h2>
 
+                         <details className="mt-4 rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+                  <summary className="cursor-pointer font-semibold text-amber-300">
+                    פתחו פירוט
+                  </summary>
+
+                  <div className="mt-3 space-y-2 text-sm leading-7 text-slate-300">
+                    <p>• מתי זה מתאים: כאשר הרכבת משתלבת במסלול בלי להפוך את היום לעמוס מדי.</p>
+                    <p>• מה כדאי לבדוק: זמני רכבות, החלפות, מחיר, מזג אוויר וראות.</p>
+                    <p>• איך מחליטים: רכבת נופית היא תוספת יפה, אבל לא חובה אם היא פוגעת בקצב המשפחה.</p>
+                  </div>
+                </details>
           <div className="mt-5 grid gap-5 md:grid-cols-3">
             {scenicIdeas.map((item) => (
               <div
@@ -298,11 +379,15 @@ const teenText =
 
 function AnswerCard({ label, value }: { label: string; value?: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+    <Link
+      href="/search"
+      className="block rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:border-amber-300/60 hover:bg-white/10"
+    >
       <p className="text-sm font-semibold text-amber-300">{label}</p>
       <p className="mt-2 leading-7 text-slate-100">
         {value && value.length > 0 ? value : "עדיין לא נבחר"}
       </p>
-    </div>
+      <p className="mt-3 text-xs text-slate-400">לחצו לעריכת התשובה</p>
+    </Link>
   );
 }

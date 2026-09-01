@@ -98,6 +98,17 @@ export default function Home() {
                 </h3>
 
                 <p className="mt-3 leading-8 text-slate-300">{item.text}</p>
+                             <details className="mt-4 rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+                  <summary className="cursor-pointer font-semibold text-amber-300">
+                    פתחו פירוט
+                  </summary>
+
+                  <div className="mt-3 space-y-2 text-sm leading-7 text-slate-300">
+                    <p>• למה זה חשוב: זה עוזר להבין אם הנושא מתאים למשפחה, לעונה ולקצב הטיול.</p>
+                    <p>• מה כדאי לבדוק: תאריכים, שעות פתיחה, מרחקים, עומס, מזג אוויר ועלויות.</p>
+                    <p>• איך משתמשים בזה: לא חייבים לבחור הכול — בוחרים רק מה שמתאים למסלול ולמשפחה.</p>
+                  </div>
+                </details>
               </div>
             ))}
           </div>
@@ -122,6 +133,17 @@ export default function Home() {
                 </h3>
 
                 <p className="mt-3 leading-8 text-slate-300">{item.text}</p>
+                             <details className="mt-4 rounded-2xl border border-white/10 bg-slate-900/70 p-4">
+                  <summary className="cursor-pointer font-semibold text-amber-300">
+                    פתחו פירוט
+                  </summary>
+
+                  <div className="mt-3 space-y-2 text-sm leading-7 text-slate-300">
+                    <p>• מתי זה מתאים: כאשר האזור מסתדר עם מקום הלינה, משך הטיול וקצב המשפחה.</p>
+                    <p>• מה כדאי לבדוק: זמני נסיעה, רכבות, חזרה בערב, מזג אוויר ונוחות בחורף.</p>
+                    <p>• איך מחליטים: בוחרים אזור לא רק לפי יופי, אלא לפי נוחות, עומס ומה באמת מתאים למשפחה.</p>
+                  </div>
+                </details>
               </div>
             ))}
           </div>
@@ -158,7 +180,7 @@ export default function Home() {
 
           <p className="mt-3 leading-8 text-slate-200">
             כדי לקבל כיוון אישי יותר, כדאי להתחיל בעמוד השאלות ולבחור את משך
-  הטיול, חוויית חג המולד, קור וחורף, אזור בסיס, סוג לינה ומה חשוב לנער/ה.
+            הטיול, חוויית חג המולד, קור וחורף, אזור בסיס, סוגהלינה ומה חשוב במיוחד לנער/ה.
           </p>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
