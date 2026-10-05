@@ -1,33 +1,9 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useAnswers } from "@/lib/use-answers";
 
-const STORAGE_KEY = "swissChristmasAnswers";
-type Answers = {
-  tripLength: string;
-  travelStyle: string;
-  winterComfort?: string;
-  scenicInterest: string;
-  scenicOption: string;
-  baseArea: string;
-  lodgingType?: string;
-  lodgingPriority?: string;
-  teenPriorities?: string[];
-  teenPriority?: string;
-};
-const defaultAnswers: Answers = {
-  tripLength: "",
-  travelStyle: "",
-  winterComfort: "",
-  scenicInterest: "",
-  scenicOption: "",
-  baseArea: "",
-  lodgingType: "",
-  lodgingPriority: "",
-  teenPriorities: [],
-  teenPriority: "",
-};
 const plannerRules = [
   "לשאול שאלות לפני בניית מסלול סופי.",
   "להשתמש בתשובות המשפחתיות שנשמרו בעמוד השאלות.",
@@ -40,31 +16,8 @@ const plannerRules = [
 ];
 
 export default function PromptPage() {
-  const [answers, setAnswers] = useState<Answers>(defaultAnswers);
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-
-    if (!stored) {
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(stored);
-
-      setAnswers({
-        ...defaultAnswers,
-        ...parsed,
-        teenPriorities: Array.isArray(parsed.teenPriorities)
-          ? parsed.teenPriorities
-          : parsed.teenPriority
-            ? [parsed.teenPriority]
-            : [],
-      });
-    } catch {
-      setAnswers(defaultAnswers);
-    }
-  }, []);
+  const { answers, ready, status } = useAnswers();
+  const [copyStatus, setCopyStatus] = useState("");
 
   const teenText =
     answers.teenPriorities && answers.teenPriorities.length > 0
@@ -166,18 +119,18 @@ Only after that, suggest a realistic day-by-day itinerary.`;
           </Link>
         </div>
 
+        {!ready && <p role="status" className="mb-4 text-slate-300">טוענים תשובות שמורות…</p>}
+        {status === "error" && <p role="alert" className="mb-4 rounded-2xl border border-amber-300/50 p-4 text-amber-200">לא ניתן לטעון או לשמור את התשובות. חזרו לשאלון, בחרו שוב ונסו לשמור. אם ההודעה נשארת, בדקו שהדפדפן מאפשר שמירה.</p>}
         <section className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl">
           <p dir="ltr" className="text-right text-sm font-semibold text-amber-300">
             Swiss Christmas Family Planner
           </p>
 
           <p className="mt-3 leading-8 text-slate-200">
-            אחרי שהכיוון נראה נכון, אפשר להמשיך לעמוד ההנחיה למתכנן. שם תיווצר
-            הנחיה מסודרת שאפשר להשתמש בה כדי לבנות מסלול מפורט יותר.
+            זהו השלב האחרון באתר: מעתיקים את ההנחיה ומדביקים בצ׳אט שבו תרצו לתכנן את הטיול.
           </p>
           <p className="mt-5 max-w-3xl leading-8 text-slate-300">
-            העמוד הזה מכין הנחיה מסודרת לפי התשובות שנשמרו. אפשר להשתמש בה כדי
-            לקבל מסלול מפורט יותר, ולאחר מכן להמשיך למסלול לדוגמה בתוך ההאתר.
+            לחצו על ״העתקת ההנחיה״, פתחו את הצ׳אט, הדביקו ושלחו. ההנחיה כוללת את הבחירות שלכם. המסלול באתר הוא דוגמה; המסלול המפורט ייבנה בצ׳אט.
           </p>
         </section>
 
@@ -219,6 +172,12 @@ Only after that, suggest a realistic day-by-day itinerary.`;
            ההנחיה כתובה בעיקר באנגלית כדי שיהיה קל להדביק אותה בכל כלי תכנון או צ׳אט אחר. התשובות המשפחתיות נשארות כפי שנבחרו בעברית, כדי לא לאבד את המשמעות המקורית.
           </p>
 
+          <button type="button" disabled={!ready} onClick={async () => {
+            try { await navigator.clipboard.writeText(promptText); setCopyStatus("ההנחיה הועתקה. עכשיו פתחו את הצ׳אט, הדביקו ושלחו."); }
+            catch { setCopyStatus("ההעתקה לא הצליחה. סמנו את הטקסט שמתחת, העתיקו והדביקו בצ׳אט."); }
+          }} className="mt-4 rounded-full bg-amber-300 px-6 py-3 font-bold text-slate-950 hover:bg-amber-200 disabled:opacity-50">העתקת ההנחיה</button>
+          <p role="status" className="mt-3 text-amber-200">{copyStatus}</p>
+
           <pre
             dir="ltr"
             className="mt-5 whitespace-pre-wrap rounded-3xl border border-white/10 bg-slate-950 p-5 text-left text-sm leading-7 text-slate-100"
@@ -240,10 +199,10 @@ Only after that, suggest a realistic day-by-day itinerary.`;
         </section>
 
         <section className="mt-8 rounded-3xl border border-amber-300/30 bg-amber-300/10 p-6">
-          <h2 className="text-2xl font-bold text-amber-200">המשך</h2>
+          <h2 className="text-2xl font-bold text-amber-200">סיום והמשך התכנון בצ׳אט</h2>
 
           <p className="mt-3 leading-8 text-slate-200">
-            מכאן אפשר להמשיך למסלול לדוגמה, או לחזור אחורה ולשנות את התשובות.
+            המשך התכנון נעשה בצ׳אט לאחר העתקת ההנחיה. הקישורים כאן מאפשרים רק לחזור לדוגמה או לשנות בחירות.
           </p>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -251,7 +210,7 @@ Only after that, suggest a realistic day-by-day itinerary.`;
               href="/itinerary"
               className="rounded-full bg-amber-300 px-6 py-3 text-center font-bold text-slate-950 hover:bg-amber-200"
             >
-              המשך למסלול לדוגמה
+              צפייה חוזרת במסלול לדוגמה
             </Link>
 
             <Link

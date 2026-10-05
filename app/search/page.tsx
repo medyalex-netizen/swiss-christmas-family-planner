@@ -1,45 +1,15 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-
-const STORAGE_KEY = "swissChristmasAnswers";
-
-type Answers = {
-  tripLength: string;
-  travelStyle: string;
-  winterComfort: string;
-  scenicInterest: string;
-  scenicOption: string;
-  baseArea: string;
-  lodgingType: string;
-  lodgingPriority: string;
-  teenPriorities: string[];
-  teenPriority: string;
-};
-const defaultAnswers: Answers = {
-  tripLength: "",
-  travelStyle: "",
-  winterComfort: "",
-  scenicInterest: "",
-  scenicOption: "",
-  baseArea: "",
-  lodgingType: "",
-  lodgingPriority: "",
-  teenPriorities: [],
-  teenPriority: "",
-};
+import { tripLengths, type Answers } from "@/lib/answers";
+import { useAnswers } from "@/lib/use-answers";
 
 const questions = [
   {
     key: "tripLength",
     title: "מה משך הטיול המתוכנן?",
     helper: "משך הטיול יעזור לבחור כמה שווקים, רכבות ואטרקציות אפשר לשלב בלי עומס.",
-    options: [
-      "5-6 ימים — טיול קצר וממוקד",
-      "7-8 ימים — טיול מאוזן",
-      "9-10 ימים — מספיק זמן גם לשווקים, רכבות ויום הרים",
-    ],
+    options: tripLengths,
   },
   {
     key: "travelStyle",
@@ -133,67 +103,19 @@ const teenOptions = [
 ];
 
 export default function SearchPage() {
-  const [answers, setAnswers] = useState<Answers>(defaultAnswers);
-  const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-
-    if (stored) {
-      const parsed = JSON.parse(stored);
-
-      setAnswers({
-        ...defaultAnswers,
-        ...parsed,
-        teenPriorities: Array.isArray(parsed.teenPriorities)
-          ? parsed.teenPriorities
-          : parsed.teenPriority
-            ? [parsed.teenPriority]
-            : [],
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    const teenPriority = answers.teenPriorities.join(", ");
-
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ ...answers, teenPriority })
-    );
-  }, [answers]);
+  const { answers, ready, status, save, clear } = useAnswers();
 
   function selectAnswer(key: keyof Answers, value: string) {
-    setAnswers((current) => ({
-      ...current,
-      [key]: value,
-    }));
-
-    setSaved(true);
+    save((current) => ({ ...current, [key]: value }));
   }
 
   function toggleTeenPriority(value: string) {
-    setAnswers((current) => {
-      const exists = current.teenPriorities.includes(value);
-
-      const nextTeenPriorities = exists
+    save((current) => ({
+      ...current,
+      teenPriorities: current.teenPriorities.includes(value)
         ? current.teenPriorities.filter((item) => item !== value)
-        : [...current.teenPriorities, value];
-
-      return {
-        ...current,
-        teenPriorities: nextTeenPriorities,
-        teenPriority: nextTeenPriorities.join(", "),
-      };
-    });
-
-    setSaved(true);
-  }
-
-  function clearAnswers() {
-    setAnswers(defaultAnswers);
-    window.localStorage.removeItem(STORAGE_KEY);
-    setSaved(false);
+        : [...current.teenPriorities, value],
+    }));
   }
 
   const hasEnoughAnswers = Boolean(
@@ -224,7 +146,7 @@ export default function SearchPage() {
 
           <p className="mt-5 max-w-3xl leading-8 text-slate-300">
             ענו על השאלות כדי שהאתר יבנה כיוון ראשוני שמתאים למשפחה, לחוויית חג המולד, לחורף, ללינה ולמה שחשוב לנער/ה.
-           להמשיך לכיוו ראשוני.
+           אפשר להמשיך לכיוון ראשוני גם עם תשובות חלקיות.
           </p>
         </section>
 
@@ -250,9 +172,9 @@ export default function SearchPage() {
                       <button
                         key={option}
                         type="button"
-                        onClick={() =>
-                          selectAnswer(question.key as keyof Answers, option)
-                        }
+                        onClick={() => selectAnswer(question.key as keyof Answers, option)}
+                        disabled={!ready}
+                        aria-pressed={isSelected}
                         className={`rounded-2xl border p-4 text-right leading-7 transition ${
                           isSelected
                             ? "border-amber-300 bg-amber-300 text-slate-950"
@@ -286,6 +208,8 @@ export default function SearchPage() {
                     key={option}
                     type="button"
                     onClick={() => toggleTeenPriority(option)}
+                    disabled={!ready}
+                    aria-pressed={isSelected}
                     className={`rounded-2xl border p-4 text-right leading-7 transition ${
                       isSelected
                         ? "border-amber-300 bg-amber-300 text-slate-950"
@@ -307,16 +231,18 @@ export default function SearchPage() {
               <h2 className="text-2xl font-bold">התשובות נשמרות בדפדפן</h2>
 
               <p className="mt-2 text-slate-300">
-                {saved
-                  ? "התשובות נשמרו. אפשר להמשיך ללכיוון ראשוני."
-                  : "בחרו תשובות ואז המשיכו לכיוון ראשוני."}
+                {!ready ? "טוענים תשובות שמורות…" : status === "error"
+                  ? "לא ניתן לטעון או לשמור את התשובות בדפדפן. אפשר להמשיך, אך הבחירות האחרונות עלולות לא להישמר."
+                  : status === "saved" ? "התשובות נשמרו. אפשר להמשיך לכיוון ראשוני."
+                  : "אפשר לבחור תשובות או להמשיך עם החלטות פתוחות."}
               </p>
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
-                onClick={clearAnswers}
+                onClick={clear}
+                disabled={!ready}
                 className="rounded-full border border-white/20 px-6 py-3 font-semibold text-slate-100 hover:border-amber-300"
               >
                 מחיקת תשובות
@@ -324,11 +250,7 @@ export default function SearchPage() {
 
               <Link
                 href="/results"
-                className={`rounded-full px-6 py-3 text-center font-bold ${
-                  hasEnoughAnswers
-                    ? "bg-amber-300 text-slate-950 hover:bg-amber-200"
-                    : "bg-slate-700 text-slate-300"
-                }`}
+                className="rounded-full bg-amber-300 px-6 py-3 text-center font-bold text-slate-950 hover:bg-amber-200"
               >
                המשך לכיוון ראשוני
               </Link>

@@ -1,34 +1,9 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useAnswers } from "@/lib/use-answers";
 
-const STORAGE_KEY = "swissChristmasAnswers";
 
-type Answers = {
-  tripLength: string;
-  travelStyle: string;
-  winterComfort?: string;
-  scenicInterest: string;
-  scenicOption: string;
-  baseArea: string;
-  lodgingType?: string;
-  lodgingPriority?: string;
-  teenPriorities?: string[];
-  teenPriority?: string;
-};
-const defaultAnswers: Answers = {
-  tripLength: "",
-  travelStyle: "",
-  winterComfort: "",
-  scenicInterest: "",
-  scenicOption: "",
-  baseArea: "",
-  lodgingType: "",
-  lodgingPriority: "",
-  teenPriorities: [],
-  teenPriority: "",
-};
 const itineraryDays = [
   {
     day: "יום 1",
@@ -91,33 +66,9 @@ const checks = [
 ];
 
 export default function ItineraryPage() {
-  const [answers, setAnswers] = useState<Answers>(defaultAnswers);
+  const { answers } = useAnswers();
 
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-
-    if (!stored) {
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(stored);
-
-      setAnswers({
-        ...defaultAnswers,
-        ...parsed,
-        teenPriorities: Array.isArray(parsed.teenPriorities)
-          ? parsed.teenPriorities
-          : parsed.teenPriority
-            ? [parsed.teenPriority]
-            : [],
-      });
-    } catch {
-      setAnswers(defaultAnswers);
-    }
-  }, []);
-
-  const teenText =
+const teenText =
   answers.teenPriorities && answers.teenPriorities.length > 0
     ? answers.teenPriorities.join(", ")
     : answers.teenPriority || "עדיין לא נבחר";
@@ -198,7 +149,7 @@ return (
             href="/prompt"
             className="text-sm text-amber-300 hover:text-amber-200"
           >
-            חזרה להנחיית התכנון
+            להכנת הנחיה לתכנון אישי
           </Link>
           <Link
   href="/weather"
@@ -218,14 +169,14 @@ return (
           </h1>
 
           <p className="mt-5 max-w-3xl leading-8 text-slate-300">
-            זהו מסלול ראשוני לדוגמה. הוא מתאים בעיקר לטיול ארוך של 9–10 ימים. בטיול קצר יותר צריך לקצר אותו ולא לשלב את כל הימים. הוא לא מחליף בדיקה אמיתית של תאריכים,
-            רכבות, מזג אוויר, מחירים ושעות פתיחה, אבל הוא נותן מבנה הגיוני
-            להמשך תכנון.
+            זוהי דוגמה למסלול שמתחיל בציריך וממשיך מערבה. מספר הימים המוצג הוא הקצה העליון של טווח משך הטיול שבחרתם.
+            סדר היעדים אינו מותאם לכל הבחירות שלכם; רכבות וימי הרים הם אפשרויות בלבד ואפשר להחליפם ביום רגוע.
+            הבחירות שלכם מופיעות בהמשך ונכללות בהנחיית התכנון. מסלול אישי ייבנה לאחר בדיקת לינה, תאריכים, תחבורה ושעות פתיחה.
           </p>
         </section>
 
         <section className="mt-8 rounded-3xl border border-white/10 bg-slate-900/80 p-6">
-          <h2 className="text-2xl font-bold">התשובות שעליהן המסלול מבוסס</h2>
+          <h2 className="text-2xl font-bold">הבחירות שלכם להמשך התכנון</h2>
 
           <div className="mt-5 grid gap-4 md:grid-cols-2">
           <AnswerCard label="משך הטיול" value={answers.tripLength} />
@@ -320,7 +271,7 @@ return (
     href="/prompt"
     className="rounded-full bg-amber-300 px-6 py-3 text-center font-bold text-slate-950 hover:bg-amber-200"
   >
-    חזרה להנחיית התכנון
+    להכנת הנחיה לתכנון אישי
   </Link>
 
   <Link

@@ -1,19 +1,9 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-
-type Answers = {
-  tripLength?: string;
-  travelStyle?: string;
-  winterComfort?: string;
-  scenicInterest?: string;
-  scenicOption?: string;
-  baseArea?: string;
-  lodgingType?: string;
-  lodgingPriority?: string;
-  teenPriority?: string;
-};
+import { useAnswers } from "@/lib/use-answers";
+import { chooseWeatherLocation, weatherLocations } from "@/lib/weather";
+import { useEffect, useState } from "react";
 
 type ForecastDay = {
   date: string;
@@ -23,98 +13,22 @@ type ForecastDay = {
   snowfall?: number;
 };
 
-const locations = [
-  {
-    name: "Lausanne",
-    label: "לוזאן",
-    latitude: 46.5197,
-    longitude: 6.6323,
-  },
-  {
-    name: "Montreux",
-    label: "מונטרה",
-    latitude: 46.4312,
-    longitude: 6.9107,
-  },
-  {
-    name: "Zurich",
-    label: "ציריך",
-    latitude: 47.3769,
-    longitude: 8.5417,
-  },
-  {
-    name: "Basel",
-    label: "באזל",
-    latitude: 47.5596,
-    longitude: 7.5886,
-  },
-  {
-    name: "Lucerne",
-    label: "לוצרן",
-    latitude: 47.0502,
-    longitude: 8.3093,
-  },
-  {
-    name: "Interlaken",
-    label: "אינטרלאקן",
-    latitude: 46.6863,
-    longitude: 7.8632,
-  },
-];
-
-const defaultAnswers: Answers = {
-  tripLength: "7-8 ימים",
-  travelStyle: "שווקי חג מולד, אורות ואווירת ערב",
-  winterComfort: "חורף בקצב נוח עם הפסקות חימום",
-  baseArea: "לוזאן / מונטרה / אזור אגם ז׳נבה",
-  lodgingType: "אירוח אצל חברים או משפחה בלוזאן",
-  lodgingPriority: "קרוב לתחנת רכבת",
-  teenPriority: "שוקולד, קינוחים ובתי קפה",
-};
-
-function chooseLocation(answers: Answers) {
-  const text = [
-    answers.baseArea,
-    answers.lodgingType,
-    answers.lodgingPriority,
-    answers.scenicOption,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  if (text.includes("ציריך")) return locations[2];
-  if (text.includes("באזל")) return locations[3];
-  if (text.includes("לוצרן")) return locations[4];
-  if (text.includes("אינטרלאקן") || text.includes("גרינדלוולד")) {
-    return locations[5];
-  }
-  if (text.includes("מונטרה")) return locations[1];
-  return locations[0];
-}
-
 export default function WeatherPage() {
-  const [answers, setAnswers] = useState<Answers>(defaultAnswers);
+  const { answers, ready, status: answerStatus } = useAnswers();
+  const [selectedCity, setSelectedCity] = useState("");
   const [forecast, setForecast] = useState<ForecastDay[]>([]);
   const [status, setStatus] = useState("טוען תחזית...");
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("swissChristmasAnswers");
-
-    if (saved) {
-      try {
-        setAnswers({ ...defaultAnswers, ...JSON.parse(saved) });
-      } catch {
-        setAnswers(defaultAnswers);
-      }
-    }
-  }, []);
-
-  const location = useMemo(() => chooseLocation(answers), [answers]);
+  const location = weatherLocations.find((item) => item.name === selectedCity)
+    ?? chooseWeatherLocation(answers);
 
   useEffect(() => {
+    if (!ready) return;
+    const controller = new AbortController();
     async function loadForecast() {
       setIsLoading(true);
+      setForecast([]);
       setStatus("טוען תחזית חיה...");
 
       try {
@@ -125,7 +39,7 @@ export default function WeatherPage() {
           `&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,snowfall_sum` +
           `&timezone=auto`;
 
-        const response = await fetch(url);
+        const response = await fetch(url, { signal: controller.signal });
 
         if (!response.ok) {
           throw new Error("Forecast failed");
@@ -143,18 +57,21 @@ export default function WeatherPage() {
           }),
         );
 
+        if (controller.signal.aborted) return;
         setForecast(days);
         setStatus("התחזית נטענה בהצלחה.");
       } catch {
+        if (controller.signal.aborted) return;
         setStatus("לא ניתן לטעון תחזית כרגע. יש לבדוק שוב קרוב למועד הנסיעה.");
         setForecast([]);
       } finally {
-        setIsLoading(false);
+        if (!controller.signal.aborted) setIsLoading(false);
       }
     }
 
     loadForecast();
-  }, [location.latitude, location.longitude]);
+    return () => controller.abort();
+  }, [ready, location.latitude, location.longitude]);
 
   const coldNotes = [
     "לתכנן לבוש בשכבות, כפפות, צעיף ונעליים נוחות נגד קור ורטיבות.",
@@ -214,11 +131,18 @@ export default function WeatherPage() {
           </h2>
 
           <p className="mt-3 leading-8 text-slate-200">
-            בסיס מזג האוויר נבחר לפי התשובות שנשמרו. אם לא נשמרו תשובות, ברירת
-            המחדל היא לוזאן — בסיס מתאים ללינה אצל חברים, מונטרה, שווקי חג
-            מולד באזור האגם ורכבות נופיות.
+            העיר נבחרת לפי אזור הבסיס, ובהיעדר בחירה לפי אפשרות הלינה. באזור לוזאן / מונטרה / אגם ז׳נבה מוצגת לוזאן.
+            אפשר לבחור עיר אחרת כאן. בחירת רכבת אינה משנה את עיר התחזית. ללא בחירה מוצגת לוזאן כברירת מחדל בלבד.
           </p>
 
+          <label className="mt-4 block text-slate-200">
+            עיר לתחזית
+            <select value={selectedCity} onChange={(event) => setSelectedCity(event.target.value)} className="mr-3 rounded-xl border border-white/20 bg-slate-900 p-2 text-white">
+              <option value="">לפי אזור הבסיס</option>
+              {weatherLocations.map((item) => <option key={item.name} value={item.name}>{item.label}</option>)}
+            </select>
+          </label>
+          {answerStatus === "error" && <p role="alert" className="mt-3 text-amber-200">לא ניתן לקרוא את הבחירות השמורות. אפשר לבחור עיר לתחזית כאן.</p>}
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             <InfoCard label="סטטוס" value={isLoading ? "טוען..." : status} />
             <InfoCard label="אזור תחזית" value={`${location.label}, Switzerland`} />
@@ -263,7 +187,7 @@ export default function WeatherPage() {
                   <p className="text-slate-200">מינימום: {day.min}°C</p>
                   <p className="text-slate-200">סיכוי לגשם: {day.rain}%</p>
                   <p className="text-slate-200">
-                    שלג צפוי: {day.snowfall ?? 0} מ״מ
+                    שלג צפוי: {day.snowfall ?? 0} ס״מ
                   </p>
                 </div>
               ))}

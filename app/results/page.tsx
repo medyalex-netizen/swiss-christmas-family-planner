@@ -1,35 +1,10 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { tripLengths } from "@/lib/answers";
+import { useAnswers } from "@/lib/use-answers";
 
-const STORAGE_KEY = "swissChristmasAnswers";
 
-type Answers = {
-  tripLength: string;
-  travelStyle: string;
-  winterComfort?: string;
-  scenicInterest: string;
-  scenicOption: string;
-  baseArea: string;
-  lodgingType?: string;
-  lodgingPriority?: string;
-  teenPriorities?: string[];
-  teenPriority?: string;
-};
-
-const defaultAnswers: Answers = {
-  tripLength: "",
-  travelStyle: "",
-  winterComfort: "",
-  scenicInterest: "",
-  scenicOption: "",
-  baseArea: "",
-  lodgingType: "",
-  lodgingPriority: "",
-  teenPriorities: [],
-  teenPriority: "",
-};
 const tripLengthIdeas = [
   {
     title: "טיול קצר — 5 עד 6 ימים",
@@ -97,32 +72,8 @@ const familyRules = [
 ];
 
 export default function ResultsPage() {
-  const [answers, setAnswers] = useState<Answers>(defaultAnswers);
+  const { answers, ready, status, save } = useAnswers();
 
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-
-    if (!stored) {
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(stored);
-
-      setAnswers({
-        ...defaultAnswers,
-        ...parsed,
-        teenPriorities: Array.isArray(parsed.teenPriorities)
-          ? parsed.teenPriorities
-          : parsed.teenPriority
-            ? [parsed.teenPriority]
-            : [],
-      });
-    } catch {
-      setAnswers(defaultAnswers);
-    }
-  }, []);
-  
 const teenText =
   answers.teenPriority ||
   (answers.teenPriorities && answers.teenPriorities.length > 0
@@ -148,19 +99,9 @@ const teenText =
       answers.teenPriority ||
       (answers.teenPriorities && answers.teenPriorities.length > 0)
   );
-      const saveTripLengthChoice = (title: string) => {
-    const tripLength = title.includes("5")
-      ? "5–6 ימים"
-      : title.includes("7")
-        ? "7–8 ימים"
-        : "9–10 ימים";
-
-    const nextAnswers = {
-      ...answers,
-      tripLength,
-    };
-
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextAnswers));
+  const saveTripLengthChoice = (title: string) => {
+    const tripLength = tripLengths[title.includes("5") ? 0 : title.includes("7") ? 1 : 2];
+    return save((current) => ({ ...current, tripLength }));
   };
 
   return (
@@ -180,6 +121,8 @@ const teenText =
           </Link>
         </div>
 
+        {!ready && <p role="status">טוענים תשובות שמורות…</p>}
+        {status === "error" && <p role="alert" className="mb-4 text-amber-200">לא ניתן לטעון או לשמור את הבחירות בדפדפן. אפשר לחזור לשאלון ולנסות שוב.</p>}
         <section className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl">
           <p dir="ltr" className="text-right text-sm font-semibold text-amber-300">
             Swiss Christmas Family Planner
@@ -260,7 +203,7 @@ const teenText =
   <Link
     key={item.title}
     href="/itinerary"
-    onClick={() => saveTripLengthChoice(item.title)}
+    onClick={(event) => { if (!saveTripLengthChoice(item.title)) event.preventDefault(); }}
     className="block rounded-3xl border border-white/10 bg-white/5 p-6 transition hover:border-amber-300/60 hover:bg-white/10"
   >
     <h3 className="text-xl font-bold text-amber-200">
